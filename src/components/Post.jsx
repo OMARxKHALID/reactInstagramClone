@@ -42,29 +42,14 @@ const Post = ({ post }) => {
         setReadMore(!readMore);
     };
 
-    const cardStyle = {
-        maxWidth: '530px',
-        height: '400px',
-        display: 'flex',
-        alignItems: 'center',
-    }
-    const imageStyle = {
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover'
-    }
-
-
-    const displayCaption = readMore ? caption : `${caption.substring(0, 50)}...`;
-
     return (
         <div className="py-1 px-3">
-            <div className="bg-gray-50 rounded-md mb-2 border-b-2 border-gray-300  ">
-                <div className="flex items-center sm:px-0 md:px-4 lg:px-4 xl:px-4 py-2">
+            <div className="bg-gray-50 rounded-md mb-2 border-b-2 border-gray-300">
+                <div className="flex items-center sm:px-0 md:px-4 lg:px-4 xl:px-4 py-2 ml-1">
                     <img
                         src={user && user.url}
                         alt={user.username}
-                        className="w-9 h-9 rounded-full mr-2"
+                        className="w-7 h-7 sm:w-8 sm:h-8 lg:w-8 lg:h-8 xl:w-8 xl:h-8 rounded-full mr-1.5"
                     />
                     <div>
                         <a
@@ -76,26 +61,27 @@ const Post = ({ post }) => {
                         <span className="text-xs text-gray-700 md:font-bold ml-1"> • {durationSinceCreated(created_at)}</span>
                     </div>
                     <div className="flex-grow"></div>
-                    <span className="text-xs text-gray-700 md:font-bold "> ••• </span>
+                    <span className="text-xs text-gray-700 md:font-bold mr-1"> ••• </span>
                 </div>
 
-
-                <div className="mb-2 sm:px-0 md:px-4 lg:px-4 xl:px-4" style={cardStyle}>
+                <div className={`mb-2 sm:px-0 md:px-4 lg:px-4 xl:px-4`} style={{ height: '400px', maxWidth: '530px', overflow: 'hidden' }}>
                     {post.images.map((image, index) => (
-                        <img key={index} src={image.url} alt={`Image ${index}`} style={imageStyle} />
+                        <img key={index} src={image.url} alt={`Image ${index}`} className="w-full h-full object-cover" />
                     ))}
                 </div>
 
-                <div className="flex justify-between px-4 mb-1">
+
+
+                <div className="flex justify-between px-3.5 mb-1">
                     <div className="flex items-center">
-                        <button onClick={handleLikeToggle} className="mr-4 ml-1">
+                        <button onClick={handleLikeToggle} className="mr-2">
                             {liked ? (
                                 <AiFillHeart className="text-red-500 hover:text-red-600" size="1.8rem" />
                             ) : (
                                 <AiOutlineHeart size="1.8rem" className="text-black" />
                             )}
                         </button>
-                        <button onClick={handleCommentToggle} className="mr-4">
+                        <button onClick={handleCommentToggle} className="mr-2">
                             <svg aria-label="Comment" fill="currentColor" height="24" role="img" viewBox="0 0 24 24" width="24"><path d="M20.656 17.008a9.993 9.993 0 1 0-3.59 3.615L22 22Z" fill="none" stroke="currentColor" strokeLinejoin="round" strokeWidth="2"></path></svg>
                         </button>
                         <button>
@@ -113,19 +99,19 @@ const Post = ({ post }) => {
                     </button>
                 </div>
 
-                <div className="px-4 mb-0.5">
+                <div className="px-3.5 mb-0.5">
                     <span className="font-semibold">{likes} likes</span>
                 </div>
 
-                <div className="px-4 mb-0.5">
+                <div className="px-3.5 mb-0.5">
                     <a href={`/user/${user.username}`} className="font-semibold hover:text-gray-700">{user.username}</a>
-                    <span className="ml-1">{displayCaption}</span>
+                    <span className="ml-1">{caption.substring(0, 50)}{!readMore && '...'}</span>
                     {!readMore && (
                         <button onClick={handleReadMoreToggle} className="text-gray-400 hover:text-gray-600 ml-1 focus:outline-none">more</button>
                     )}
                 </div>
 
-                <div className="px-4">
+                <div className="px-3.5">
                     <ul className={`overflow-y-auto max-h-32 ${showAllComments ? 'max-h-none' : ''}`}>
                         {comments.slice(0, showAllComments ? undefined : 1).map((comment, index) => (
                             <li key={index} className="mb-1">
@@ -134,9 +120,10 @@ const Post = ({ post }) => {
                         ))}
                     </ul>
 
-                    {comments.length > 1 && (<button onClick={handleCommentToggle} className="text-gray-400 hover:text-gray-600 focus:outline-none">
-                        {showAllComments ? 'Hide Comments' : `View ${comments.length - 1} Comments`}
-                    </button>
+                    {comments.length > 1 && (
+                        <button onClick={handleCommentToggle} className="text-gray-400 hover:text-gray-600 focus:outline-none">
+                            {showAllComments ? 'Hide Comments' : `View ${comments.length - 1} Comments`}
+                        </button>
                     )}
                     <div className="flex items-center mt-1">
                         <input
@@ -151,7 +138,6 @@ const Post = ({ post }) => {
                 </div>
             </div>
         </div>
-
     );
 };
 
