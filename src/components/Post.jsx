@@ -47,7 +47,8 @@ const Post = ({ post }) => {
         height: '584px',
     }
     const imageStyle = {
-        width: '100%',
+        margin: 'auto',
+        width: 'auto',
         height: '100%',
     }
 
@@ -81,7 +82,7 @@ const Post = ({ post }) => {
                 ))}
             </div>
 
-            <div className="flex justify-between px-4 mb-1">
+            <div className="flex justify-between px-4 mb-2">
                 <div className="flex items-center">
                     <button onClick={handleLikeToggle} className="mr-4 ml-1">
                         {liked ? (
@@ -133,7 +134,7 @@ const Post = ({ post }) => {
                     {showAllComments ? 'Hide Comments' : `View ${comments.length - 1} Comments`}
                 </button>
                 )}
-                <div className="flex items-center mt-1">
+                <div className="flex items-center mt-2">
                     <input
                         type="text"
                         value={newComment}
@@ -141,7 +142,7 @@ const Post = ({ post }) => {
                         placeholder="Add a comment..."
                         className="mb-2 border-gray-400 rounded-md px-2 py-1 flex-grow focus:outline-none"
                     />
-                    <button onClick={handleCommentAdd} className="ml-2 mb-2 px-2 md:font-bold font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">Post</button>
+                    <button onClick={handleCommentAdd} className="ml-2 mb-2 md:font-bold font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">Post</button>
                 </div>
             </div>
         </div>
