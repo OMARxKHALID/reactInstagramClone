@@ -43,7 +43,7 @@ const Post = ({ post }) => {
     };
 
     const cardStyle = {
-        width: '500px',
+        width: '510px',
         height: '584px',
     }
     const imageStyle = {
@@ -54,7 +54,7 @@ const Post = ({ post }) => {
     const displayCaption = readMore ? caption : `${caption.substring(0, 50)}...`;
 
     return (
-        <div className="bg-white rounded-md mb-2 border-b-2 border-gray-300">
+        <div className="bg-white rounded-md mb-2 border-b-2 border-gray-300 py-1">
             <div className="flex items-center px-4 py-2">
                 <img
                     src={user && user.url}
@@ -71,11 +71,11 @@ const Post = ({ post }) => {
                     <span className="text-xs text-gray-700 md:font-bold ml-1"> • {durationSinceCreated(created_at)}</span>
                 </div>
                 <div className="flex-grow"></div>
-                <span className="text-xs text-gray-700 md:font-bold mr-2"> ••• </span>
+                <span className="text-xs text-gray-700 md:font-bold "> ••• </span>
             </div>
 
 
-            <div className="mb-2 ml:3 sm:ml-3 lg:ml-3 md:ml-3" style={cardStyle}>
+            <div className="mb-2" style={cardStyle}>
                 {post.images.map((image, index) => (
                     <img key={index} src={image.url} alt={`Image ${index}`} style={imageStyle} />
                 ))}
@@ -99,7 +99,7 @@ const Post = ({ post }) => {
                         </svg>
                     </button>
                 </div>
-                <button onClick={handleBookmarkToggle} className="mr-1">
+                <button onClick={handleBookmarkToggle}>
                     {bookmarked ? (
                         <FaBookmark className="text-black" size="1.6rem" />
                     ) : (
@@ -108,11 +108,11 @@ const Post = ({ post }) => {
                 </button>
             </div>
 
-            <div className="px-4 mb-2">
+            <div className="px-4 mb-1">
                 <span className="font-semibold">{likes} likes</span>
             </div>
 
-            <div className="px-4 mb-2">
+            <div className="px-4 mb-1">
                 <a href={`/user/${user.username}`} className="font-semibold hover:text-gray-700">{user.username}</a>
                 <span className="ml-1">{displayCaption}</span>
                 {!readMore && (
@@ -128,9 +128,11 @@ const Post = ({ post }) => {
                         </li>
                     ))}
                 </ul>
-                <button onClick={handleCommentToggle} className="text-gray-400 hover:text-gray-600 focus:outline-none">
+
+                {comments.length > 1 && (<button onClick={handleCommentToggle} className="text-gray-400 hover:text-gray-600 focus:outline-none">
                     {showAllComments ? 'Hide Comments' : `View ${comments.length - 1} Comments`}
                 </button>
+                )}
                 <div className="flex items-center mt-2">
                     <input
                         type="text"
