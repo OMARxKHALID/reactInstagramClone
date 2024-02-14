@@ -42,35 +42,44 @@ const Post = ({ post }) => {
         setReadMore(!readMore);
     };
 
+    const cardStyle = {
+        width: '500px',
+        height: '584px',
+    }
+    const imageStyle = {
+        width: '100%',
+        height: '100%',
+    }
+
     const displayCaption = readMore ? caption : `${caption.substring(0, 50)}...`;
 
     return (
         <div className="bg-white rounded-md mb-2 border-b-2 border-gray-300">
-        <div className="flex items-center px-4 py-2">
-            <img
-                src={user && user.url}
-                alt={user.username}
-                className="w-9 h-9 rounded-full mr-2"
-            />
-            <div>
-                <a
-                    href={`/user/${user.username}`}
-                    className="text-sm font-semibold hover:text-gray-700"
-                >
-                    {user.username}
-                </a>
-                <span className="text-xs text-gray-700 md:font-bold ml-1"> • {durationSinceCreated(created_at)}</span>
+            <div className="flex items-center px-4 py-2">
+                <img
+                    src={user && user.url}
+                    alt={user.username}
+                    className="w-9 h-9 rounded-full mr-2"
+                />
+                <div>
+                    <a
+                        href={`/user/${user.username}`}
+                        className="text-sm font-semibold hover:text-gray-700"
+                    >
+                        {user.username}
+                    </a>
+                    <span className="text-xs text-gray-700 md:font-bold ml-1"> • {durationSinceCreated(created_at)}</span>
+                </div>
+                <div className="flex-grow"></div>
+                <span className="text-xs text-gray-700 md:font-bold mr-2"> ••• </span>
             </div>
-            <div className="flex-grow"></div>
-            <span className="text-xs text-gray-700 md:font-bold mr-3"> ••• </span>
-        </div>
 
 
-        <div className="mb-2 ml-0 md:ml-3">
-            {post.images.map((image, index) => (
-                <img key={index} src={image.url} alt={`Image ${index}`} className="bg-cover object-cover" style={{height: '584px', width: '500px'}}/>
-            ))}
-        </div>
+            <div className="mb-2 ml:3 sm:ml-3 lg:ml-3 md:ml-3" style={cardStyle}>
+                {post.images.map((image, index) => (
+                    <img key={index} src={image.url} alt={`Image ${index}`} style={imageStyle} />
+                ))}
+            </div>
 
             <div className="flex justify-between px-4 mb-2">
                 <div className="flex items-center">
