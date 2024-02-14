@@ -43,7 +43,7 @@ const Post = ({ post }) => {
     };
 
     const cardStyle = {
-        width: '510px',
+        width: '530px',
         height: '584px',
     }
     const imageStyle = {
