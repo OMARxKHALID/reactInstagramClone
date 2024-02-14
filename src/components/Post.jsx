@@ -49,7 +49,7 @@ const Post = ({ post }) => {
                     <img
                         src={user && user.url}
                         alt={user.username}
-                        className="w-7 h-7 sm:w-8 sm:h-8 lg:w-8 lg:h-8 xl:w-8 xl:h-8 rounded-full mr-1.5"
+                        className="w-7 h-7 sm:w-8 sm:h-8 lg:w-8 lg:h-8 xl:w-8 xl:h-8 border-2 border-pink-500 rounded-full mr-1.5"
                     />
                     <div>
                         <a
