@@ -44,7 +44,7 @@ const Post = ({ post }) => {
 
     const cardStyle = {
         maxWidth: '530px',
-        height: '560px',
+        height: '400px',
         display: 'flex',
         alignItems: 'center',
     }
@@ -58,9 +58,9 @@ const Post = ({ post }) => {
     const displayCaption = readMore ? caption : `${caption.substring(0, 50)}...`;
 
     return (
-        <div className="py-2 px-4">
-            <div className="bg-gray-200 rounded-md mb-2 border-b-2 border-gray-300 ">
-                <div className="flex items-center px-4 py-2">
+        <div className="py-1 px-3">
+            <div className="bg-gray-50 rounded-md mb-2 border-b-2 border-gray-300  ">
+                <div className="flex items-center sm:px-0 md:px-4 lg:px-4 xl:px-4 py-2">
                     <img
                         src={user && user.url}
                         alt={user.username}
@@ -80,7 +80,7 @@ const Post = ({ post }) => {
                 </div>
 
 
-                <div className="mb-2 px-4" style={cardStyle}>
+                <div className="mb-2 sm:px-0 md:px-4 lg:px-4 xl:px-4" style={cardStyle}>
                     {post.images.map((image, index) => (
                         <img key={index} src={image.url} alt={`Image ${index}`} style={imageStyle} />
                     ))}
