@@ -4,28 +4,29 @@ import { ImSearch } from "react-icons/im";
 import { BsPlusSquare, BsFillPlusSquareFill } from "react-icons/bs";
 import { RiUser3Line, RiUser3Fill } from "react-icons/ri";
 import { FiLogOut } from "react-icons/fi";
+import { FiInstagram } from "react-icons/fi";
 import { Link, useLocation } from 'react-router-dom';
 
-const loadLogo = async () => {
-  const image = await import('../images/instagramLogo.png');
-  return image.default;
-};
+import instagramLogo from '../images/instagramLogo.png';
 
 const SideBar = () => {
-  const [logo, setLogo] = useState(null);
+  const [isMediumScreen, setIsMediumScreen] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
-    const fetchLogo = async () => {
-      const logo = await loadLogo();
-      setLogo(logo);
-    };
-    fetchLogo();
-  }, []);
+    const isMedium = window.matchMedia("(max-width: 1100px)").matches;
+    setIsMediumScreen(isMedium);
 
-  if (!logo) {
-    return null;
-  }
+    const handleResize = () => {
+      setIsMediumScreen(window.matchMedia("(max-width: 1100px)").matches);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const links = [
     { name: "Home", route: "/", IconLine: AiOutlineHome, IconFilled: AiFillHome },
@@ -34,47 +35,31 @@ const SideBar = () => {
     { name: "Profile", route: "#", IconLine: RiUser3Line, IconFilled: RiUser3Fill },
   ];
 
-  return (
-    <div className="fixed left-0 top-0 h-full border-r-[1px] border-solid border-gray-300">
-      <div className="flex flex-col h-full">
-        <div className="flex flex-col items-center">
-          <img src={logo} alt="Instagram Logo" className="mr-1 mt-4" />
-          <div className="space-y-2 w-full mt-12">
-            {links.map((link, index) => {
-              const isActive = link.route === location.pathname;
-              const buttonClasses = [
-                "rounded-full",
-                "p-3",
-                "hover:bg-gray-100",
-                "w-full",
-                "flex",
-                "transition-all",
-                "items-center",
-                "space-x-3",
-                isActive ? "font-bold" : "font-normal"
-              ];
+  if (isMediumScreen) {
+    return null; 
+  }
 
-              return (
-                <Link key={index} to={link.route} className="block">
-                  <button className={buttonClasses.join(" ")}>
-                    {isActive ? (
-                      <link.IconFilled size="25px" />
-                    ) : (
-                      <link.IconLine size="25px" />
-                    )}
-                    <div className="text-black hidden md:block">{link.name}</div>
-                  </button>
-                </Link>
-              );
-            })}
-          </div>
+  return (
+    <div className="fixed left-4 top-4 h-full border-r-[1px] border-solid border-gray-500">
+      <div className="flex flex-col mr-4 h-full items-center">
+        <img src={instagramLogo} alt="Instagram Logo" className="mr-1 mt-4 h-[35px]" />
+        <div className="flex flex-col mt-12">
+          {links.map((link, index) => {
+            const isActive = link.route === location.pathname;
+            const Icon = isActive ? link.IconFilled : link.IconLine;
+
+            return (
+              <Link key={index} to={link.route} className="block w-full">
+                <button className="rounded-full p-3 hover:bg-gray-100 w-full flex items-center space-x-3 transition-all">
+                  <Icon size="25px" />
+                  <div className="text-black hidden md:block">{link.name}</div>
+                </button>
+              </Link>
+            );
+          })}
         </div>
         <Link to="#">
-          <button
-            className={
-              "rounded-full p-3 hover:bg-gray-100 w-full flex transition-all items-center space-x-3 font-normal"
-            }
-          >
+          <button className="rounded-full p-3 hover:bg-gray-100 w-full flex items-center space-x-3 transition-all mt-auto mb-4">
             <FiLogOut size="25px" />
             <div className="text-black hidden md:block">Logout</div>
           </button>
