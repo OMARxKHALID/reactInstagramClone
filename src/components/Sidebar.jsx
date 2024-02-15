@@ -29,34 +29,16 @@ const SideBar = () => {
 
   const links = [
     { name: "Home", route: "/", IconLine: AiOutlineHome, IconFilled: AiFillHome },
-    {
-      name: "Search",
-      route: "#",
-      IconLine: AiOutlineSearch,
-      IconFilled: ImSearch,
-    },
-    {
-      name: "Create",
-      route: "#",
-      IconLine: BsPlusSquare,
-      IconFilled: BsFillPlusSquareFill,
-    },
-    {
-      name: "Profile",
-      route: "#",
-      IconLine: RiUser3Line,
-      IconFilled: RiUser3Fill,
-    },
+    { name: "Search", route: "#", IconLine: AiOutlineSearch, IconFilled: ImSearch },
+    { name: "Create", route: "#", IconLine: BsPlusSquare, IconFilled: BsFillPlusSquareFill },
+    { name: "Profile", route: "#", IconLine: RiUser3Line, IconFilled: RiUser3Fill },
   ];
 
   return (
-    <div className="w-[244px] fixed left-0 top-0 h-full px-4 py-6 border-r-[1px] border-solid border-gray-300">
-      <div className="flex flex-col justify-between h-full">
+    <div className="fixed left-0 top-0 h-full border-r-[1px] border-solid border-gray-300">
+      <div className="flex flex-col h-full">
         <div className="flex flex-col items-center">
-          <img
-            src={logo} alt="Instagram Logo"
-            className="mr-20 mt-4"
-          />
+          <img src={logo} alt="Instagram Logo" className="mr-1 mt-4" />
           <div className="space-y-2 w-full mt-12">
             {links.map((link, index) => {
               const isActive = link.route === location.pathname;
@@ -74,15 +56,13 @@ const SideBar = () => {
 
               return (
                 <Link key={index} to={link.route} className="block">
-                  <button
-                    className={buttonClasses.join(" ")}
-                  >
+                  <button className={buttonClasses.join(" ")}>
                     {isActive ? (
                       <link.IconFilled size="25px" />
                     ) : (
                       <link.IconLine size="25px" />
                     )}
-                    <div className="text-black">{link.name}</div>
+                    <div className="text-black hidden md:block">{link.name}</div>
                   </button>
                 </Link>
               );
@@ -96,7 +76,7 @@ const SideBar = () => {
             }
           >
             <FiLogOut size="25px" />
-            <div className="text-black">Logout</div>
+            <div className="text-black hidden md:block">Logout</div>
           </button>
         </Link>
       </div>

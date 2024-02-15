@@ -1,10 +1,11 @@
 import React from "react";
 import Post from "./Post";
+import postsData from '../data/data';
 
-const Posts = ({ posts }) => {
+const Posts = () => {
     return (
         <div>
-            {posts.map((post, index) => (
+            {postsData.map((post, index) => (
                 <Post key={index} post={post} />
             ))}
         </div>
