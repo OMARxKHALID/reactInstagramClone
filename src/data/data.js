@@ -3,7 +3,7 @@ const postsData = [
   {
     caption: "Beautiful sunset at the beach! 🌅 #nature #sunset",
     images: [{ url: getRandomImageUrl() }],
-    user: users[Math.floor(Math.random() * users.length)],
+    user: users[8],
     created_at: "2024-02-13T18:45:00Z",
     count: { liked_by: 102 },
     comments: generateRandomComments()
