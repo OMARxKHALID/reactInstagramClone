@@ -5,26 +5,26 @@ import Posts from './components/Posts';
 import Stories from './components/Stories';
 import OtherSide from './components/OtherSide';
 
-function Home() {
+const Home = () => {
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex-grow flex ">
-        <div className="w-[25%]">
+      <div className="flex-grow flex">
+        <div className="w-1/4">
           <SideBar />
         </div>
-        <div className="w-[60%] flex flex-col items-center "> 
+        <div className="w-3/5 flex flex-col items-center">
           <Stories />
           <Posts />
         </div>
-        <div className="w-[25%]">
+        <div className="w-1/4">
           <OtherSide />
         </div>
       </div>
     </div>
   );
-}
+};
 
-function App() {
+const App = () => {
   return (
     <Router>
       <Routes>
@@ -32,6 +32,6 @@ function App() {
       </Routes>
     </Router>
   );
-}
+};
 
 export default App;

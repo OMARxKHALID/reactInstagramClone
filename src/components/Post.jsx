@@ -4,7 +4,7 @@ import { FaRegBookmark, FaBookmark } from "react-icons/fa";
 import { durationSinceCreated } from "../utils/dsc";
 
 const Post = ({ post }) => {
-    const { created_at, user, caption, count, comments: initialComments } = post;
+    const { created_at, user, caption, count, comments: initialComments, images } = post;
 
     const [readMore, setReadMore] = useState(false);
     const [bookmarked, setBookmarked] = useState(false);
@@ -19,7 +19,7 @@ const Post = ({ post }) => {
     }, [count]);
 
     const handleLikeToggle = () => {
-        setLikes(liked ? likes - 1 : likes + 1);
+        setLikes(prevLikes => liked ? prevLikes - 1 : prevLikes + 1);
         setLiked(!liked);
     };
 
@@ -48,15 +48,15 @@ const Post = ({ post }) => {
                 <div className="flex items-center sm:px-0 md:px-4 lg:px-4 xl:px-4 py-2 ml-1">
                     <img
                         src={user && user.url}
-                        alt={user.username}
+                        alt={user?.username}
                         className="w-7 h-7 sm:w-8 sm:h-8 lg:w-8 lg:h-8 xl:w-8 xl:h-8 border-2 border-pink-500 rounded-full mr-1.5"
                     />
                     <div>
                         <a
-                            href={`/user/${user.username}`}
+                            href={`/user/${user?.username}`}
                             className="text-sm font-semibold hover:text-gray-700"
                         >
-                            {user.username}
+                            {user?.username}
                         </a>
                         <span className="text-xs text-gray-700 md:font-bold ml-1"> • {durationSinceCreated(created_at)}</span>
                     </div>
@@ -65,8 +65,8 @@ const Post = ({ post }) => {
                 </div>
 
                 <div className={`mb-2 sm:px-0 md:px-4 lg:px-4 xl:px-4`}>
-                    <div className="relative h-[370px]  md:h-[440px] lg:h-[460px] xl:h-[480px]" style={{ maxWidth: '530px' }}>
-                        {post.images.map((image, index) => (
+                    <div className="relative h-[370px] md:h-[440px] lg:h-[460px] xl:h-[500px]" style={{ maxWidth: '530px' }}>
+                        {images.map((image, index) => (
                             <img
                                 key={index}
                                 src={image.url}
@@ -109,7 +109,7 @@ const Post = ({ post }) => {
                 </div>
 
                 <div className="px-3.5 text-sm my-1.5">
-                    <a href={`/user/${user.username}`} className="font-semibold hover:text-gray-700">{user.username}</a>
+                    <a href={`/user/${user?.username}`} className="font-semibold hover:text-gray-700">{user?.username}</a>
                     <span className="ml-1">{readMore ? caption : `${caption.substring(0, 40)}...`}</span>
                     {!readMore && (
                         <button onClick={handleReadMoreToggle} className="text-gray-400  hover:text-gray-600 ml-1 focus:outline-none">more</button>
@@ -120,7 +120,7 @@ const Post = ({ post }) => {
                     <ul className={`overflow-y-auto max-h-32 ${showAllComments ? 'max-h-none' : ''}`}>
                         {comments.slice(0, showAllComments ? undefined : 1).map((comment, index) => (
                             <li key={index} className="mb-1">
-                                <span className="font-semibold">{user.username}</span> {comment}
+                                <span className="font-semibold">{user?.username}</span> {comment}
                             </li>
                         ))}
                     </ul>
