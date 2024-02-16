@@ -43,7 +43,7 @@ const users = [
     },
     {
         id: 8,
-        name: "Omar",
+        name: "omar",
         username: "omarxoxo",
         url: 'https://images.vexels.com/media/users/3/147102/isolated/lists/082213cb0f9eabb7e6715f59ef7d322a-instagram-profile-icon.png'
     },

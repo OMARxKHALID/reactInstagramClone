@@ -8,15 +8,13 @@ import OtherSide from './components/OtherSide';
 function Home() {
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex-grow flex">
+      <div className="flex-grow flex ">
         <div className="w-[25%]">
           <SideBar />
         </div>
-        <div className="w-[60%] flex justify-center">
-          <div className="flex flex-col p-4">
-            <Stories />
-            <Posts />
-          </div>
+        <div className="w-[60%] flex flex-col items-center "> 
+          <Stories />
+          <Posts />
         </div>
         <div className="w-[25%]">
           <OtherSide />
