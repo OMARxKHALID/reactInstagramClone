@@ -1,5 +1,5 @@
 import React from "react";
-import Users from "../data/users";
+import Users from "../data/Users";
 
 const Stories = () => {
   return (

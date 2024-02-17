@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { FiHome, FiSearch, FiPlusSquare, FiHeart } from 'react-icons/fi';
-import { MdExplore } from 'react-icons/md';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { FiHome, FiSearch, FiPlusSquare, FiHeart } from "react-icons/fi";
+import { MdExplore } from "react-icons/md";
+import { Link } from "react-router-dom";
 
 function Footer() {
   const [isMobile, setIsMobile] = useState(false);
@@ -13,10 +13,10 @@ function Footer() {
 
     handleResize();
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -27,12 +27,15 @@ function Footer() {
           <FiHome size={24} className="cursor-pointer hover:text-gray-600" />
         </Link>
         <MdExplore size={24} className="cursor-pointer hover:text-gray-600" />
-        <FiPlusSquare size={24} className="cursor-pointer hover:text-gray-600" />
+        <FiPlusSquare
+          size={24}
+          className="cursor-pointer hover:text-gray-600"
+        />
         <FiHeart size={24} className="cursor-pointer hover:text-gray-600" />
         <FiSearch size={24} className="cursor-pointer hover:text-gray-600" />
       </div>
     </footer>
-  ): null;
-};
+  ) : null;
+}
 
 export default Footer;

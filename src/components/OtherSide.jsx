@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import users from "../data/users";
+import users from "../data/Users";
 
 const OtherSide = () => {
   const [isMediumScreen, setIsMediumScreen] = useState(false);

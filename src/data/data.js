@@ -1,4 +1,4 @@
-import users from './users';
+import users from './Users';
 const postsData = [
   {
     caption: "Beautiful sunset at the beach! 🌅 #nature #sunset",

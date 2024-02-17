@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { FaRegBookmark, FaBookmark } from "react-icons/fa";
-import { durationSinceCreated } from "../utils/dsc";
+import { durationSinceCreated } from "../utils/Dsc";
+import { Link } from "react-router-dom";
 
 const Post = ({ post }) => {
     const { created_at, user, caption, count, comments: initialComments, images } = post;
@@ -52,12 +53,12 @@ const Post = ({ post }) => {
                         className="w-7 h-7 sm:w-8 sm:h-8 lg:w-8 lg:h-8 xl:w-8 xl:h-8 border-2 border-pink-500 rounded-full mr-1.5"
                     />
                     <div>
-                        <a
-                            href={`/user/${user?.username}`}
+                        <Link
+                            to={`/user/${user?.username}`}
                             className="text-sm font-semibold hover:text-gray-700"
                         >
                             {user?.username}
-                        </a>
+                        </Link>
                         <span className="text-xs text-gray-700 md:font-bold ml-1"> • {durationSinceCreated(created_at)}</span>
                     </div>
                     <div className="flex-grow"></div>

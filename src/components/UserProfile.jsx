@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import users from '../data/users';
-import postsData from '../data/data'; 
+import users from '../data/Users';
+import postsData from '../data/Data'; 
 import UserPosts from './UserPosts';
 
 const UserProfile = () => {
@@ -35,7 +35,7 @@ const UserProfile = () => {
           <p className="text-gray-600">{userProfile.name}</p>
         </div>
       </div>
-      <div className="flex flex-col jusfify-center" style={{minWidth: "370px"}}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {userPosts.map(post => <UserPosts key={post.created_at} post={post} />)}
       </div>
     </div>

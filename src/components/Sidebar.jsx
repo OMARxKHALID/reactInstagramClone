@@ -4,7 +4,7 @@ import { ImSearch } from "react-icons/im";
 import { BsFillPlusSquareFill } from "react-icons/bs";
 import { FiPlusSquare } from "react-icons/fi";
 import { RiUser3Line, RiUser3Fill } from "react-icons/ri";
-import { FiLogOut, FiHeart } from "react-icons/fi";
+import { FiHeart } from "react-icons/fi";
 import {
   MdExplore,
   MdOutlineExplore,
@@ -13,6 +13,7 @@ import {
 } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
 import instagramLogo from "../images/instagramLogo.png";
+import LogoutButton from "../utils/LogoutButton";
 
 const SideBar = () => {
   const [isMediumScreen, setIsMediumScreen] = useState(false);
@@ -30,6 +31,7 @@ const SideBar = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
 
   const links = [
     {
@@ -79,6 +81,9 @@ const SideBar = () => {
   if (isMediumScreen) {
     return null;
   }
+  if (isMediumScreen) {
+    return null;
+  }
 
   return (
     <div
@@ -109,15 +114,7 @@ const SideBar = () => {
             );
           })}
         </div>
-        <Link to="#">
-          <button
-            className="p-2 mt-[300px] mr-3 rounded-md hover:bg-gray-200 w-full flex items-center space-x-4 mb-4"
-            style={{ width: "200px" }}
-          >
-            <FiLogOut size="25px" />
-            <div className="text-black">Logout</div>
-          </button>
-        </Link>
+        <LogoutButton/>
       </div>
     </div>
   );
