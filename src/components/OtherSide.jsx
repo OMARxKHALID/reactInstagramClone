@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import users from "../data/Users";
+import { useSelector } from "react-redux";
 
 const OtherSide = () => {
   const [isMediumScreen, setIsMediumScreen] = useState(false);
   const [seeAll, setSeeAll] = useState(false);
   const [followingUsers, setFollowingUsers] = useState(new Set());
+  const userData = useSelector((state) => state.auth.user);
 
   const toggleFollow = (userId) => {
     setFollowingUsers((prevUsers) => {
@@ -39,7 +41,7 @@ const OtherSide = () => {
     return null;
   }
 
-  const currentUser = users[7];
+  const currentUser = userData;
 
   return (
     <div
@@ -48,11 +50,11 @@ const OtherSide = () => {
     >
       <div className="flex items-center mb-4">
         <div className="rounded-full overflow-hidden mr-2">
-          <img
+          {/* <img
             src={currentUser.url}
             alt={currentUser.username}
             className="h-12 w-12 rounded-full object-cover border-2 border-pink-500"
-          />
+          /> */}
         </div>
         <div>
           <span className="text-sm font-semibold">{currentUser.username}</span>

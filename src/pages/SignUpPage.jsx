@@ -3,54 +3,84 @@ import { FaApple, FaGoogle, FaFacebookSquare } from "react-icons/fa";
 import instagramLogo from "../images/instagramLogo.png";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
-import { auth } from "../firebase/Firebase";
+import { auth, db } from "../firebase/Firebase";
+import { ref, set } from "firebase/database";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading, setError } from "../redux/authSlice";
 
 function SignUpPage() {
+  const [fullname, setFullname] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [formValid, setFormValid] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const loading = useSelector((state) => state.auth.isLoading);
+  const error = useSelector((state) => state.auth.error);
 
   useEffect(() => {
-    setFormValid(username !== "" && email !== "" && password !== "");
-  }, [username, email, password]);
+    const isFormValid =
+      fullname !== "" &&
+      username !== "" &&
+      email !== "" &&
+      password !== "" &&
+      confirmPassword !== "" &&
+      password === confirmPassword;
+
+    setFormValid(isFormValid);
+  }, [fullname, username, email, password, confirmPassword]);
 
   const handleSignUp = (e) => {
     e.preventDefault();
     if (!formValid || loading) return;
-    setLoading(true);
+    dispatch(setLoading(true));
 
     createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        const userRef = ref(db, "users/" + user.uid);
+
+        return set(userRef, {
+          username: username,
+          name: fullname,
+        });
+      })
       .then(() => {
         navigate("/login");
       })
       .catch((error) => {
         switch (error.code) {
           case "auth/invalid-email":
-            setError(
-              "Sorry, your email was incorrect. Please double-check your email."
+            dispatch(
+              setError(
+                "Sorry, your email was incorrect. Please double-check your email."
+              )
             );
             break;
           case "auth/weak-password":
-            setError(
-              "Sorry, your password is too weak. Please choose a stronger password."
+            dispatch(
+              setError(
+                "Sorry, your password is too weak. Please choose a stronger password."
+              )
             );
             break;
           case "auth/email-already-in-use":
-            setError(
-              "Sorry, this email is already in use. Please use a different email."
+            dispatch(
+              setError(
+                "Sorry, this email is already in use. Please use a different email."
+              )
             );
             break;
           default:
-            setError("An error occurred. Please try again later.");
+            dispatch(setError("An error occurred. Please try again later."));
             break;
         }
       })
       .finally(() => {
-        setLoading(false);
+        dispatch(setLoading(false));
       });
   };
 
@@ -66,6 +96,15 @@ function SignUpPage() {
           <input
             autoFocus
             className="text-xs w-full mb-2 rounded border bg-gray-100 border-gray-300 px-2 py-2 focus:outline-none focus:border-gray-400 active:outline-none"
+            id="fullname"
+            placeholder="Full Name"
+            type="text"
+            value={fullname}
+            onChange={(e) => setFullname(e.target.value)}
+          />
+          <input
+            autoFocus
+            className="text-xs w-full mb-2 rounded border bg-gray-100 border-gray-300 px-2 py-2 focus:outline-none focus:border-gray-400 active:outline-none"
             id="username"
             placeholder="Username"
             type="text"
@@ -75,18 +114,26 @@ function SignUpPage() {
           <input
             className="text-xs w-full mb-2 rounded border bg-gray-100 border-gray-300 px-2 py-2 focus:outline-none focus:border-gray-400 active:outline-none"
             id="email"
-            placeholder="Phone number, username, or email"
+            placeholder="Email"
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
           <input
-            className="text-xs w-full mb-4 rounded border bg-gray-100 border-gray-300 px-2 py-2 focus:outline-none focus:border-gray-400 active:outline-none"
+            className="text-xs w-full mb-2 rounded border bg-gray-100 border-gray-300 px-2 py-2 focus:outline-none focus:border-gray-400 active:outline-none"
             id="password"
             placeholder="Password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+          />
+          <input
+            className="text-xs w-full mb-4 rounded border bg-gray-100 border-gray-300 px-2 py-2 focus:outline-none focus:border-gray-400 active:outline-none"
+            id="confirmPassword"
+            placeholder="Confirm Password"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
           />
           <button
             className={`text-sm text-center ${
@@ -120,7 +167,12 @@ function SignUpPage() {
       </div>
       <div className="bg-white border border-gray-300 text-center w-80 py-4">
         <span className="text-sm">have an account?</span>
-        <Link to={'/login'} className="text-blue-500 ml-1 text-sm font-semibold">login</Link>
+        <Link
+          to={"/login"}
+          className="text-blue-500 ml-1 text-sm font-semibold"
+        >
+          login
+        </Link>
       </div>
       <div className="mt-3 text-center">
         <span className="text-xs">Get the app</span>

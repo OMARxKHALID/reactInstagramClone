@@ -81,10 +81,7 @@ const SideBar = () => {
   if (isMediumScreen) {
     return null;
   }
-  if (isMediumScreen) {
-    return null;
-  }
-
+  
   return (
     <div
       className="fixed left-4 h-full border-r-[1px] border-solid border-gray-300"

@@ -2,57 +2,89 @@ import React, { useState, useEffect } from "react";
 import { FaApple, FaGoogle, FaFacebookSquare } from "react-icons/fa";
 import instagramLogo from "../images/instagramLogo.png";
 import { Link, useNavigate } from "react-router-dom";
-import { auth } from "../firebase/Firebase";
+import { auth, db } from "../firebase/Firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { ref, get } from "firebase/database";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading, setUser, setError, selectUser} from "../redux/authSlice";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [formValid, setFormValid] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const loading = useSelector((state) => state.auth.isLoading);
+  const error = useSelector((state) => state.auth.error);
+  const user = useSelector(selectUser);
 
   useEffect(() => {
     setFormValid(email !== "" && password !== "");
   }, [email, password]);
 
+  useEffect(() => {
+    if (user == null ) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
   const handleLogin = (e) => {
     e.preventDefault();
     if (!formValid || loading) return;
-    setLoading(true);
+    dispatch(setLoading(true));
 
     signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        navigate("/");
+      .then(async (userCredential) => {
+        const user = userCredential.user;
+        if (user) {
+          const userRef = ref(db, `users/${user.uid}`);
+
+          const userSnapshot = await get(userRef);
+          if (userSnapshot.exists()) {
+            const userData = userSnapshot.val();
+            console.log("User Data:", userData);
+            dispatch(setUser(userData));
+          } else {
+            console.log("User data not found in the database");
+          }
+          navigate("/");
+        } else {
+          dispatch(setError("User not found"));
+        }
       })
+
       .catch((error) => {
-        handleError(error.code);
+        switch (error.code) {
+          case "auth/invalid-email":
+            dispatch(
+              setError(
+                "Sorry, your email was incorrect. Please double-check your email."
+              )
+            );
+            break;
+          case "auth/wrong-password":
+            dispatch(
+              setError(
+                "Sorry, your password is wrong. Please enter the correct password."
+              )
+            );
+            break;
+          case "auth/user-not-found":
+            dispatch(
+              setError(
+                "Sorry, there is no user with this email. Please sign up."
+              )
+            );
+            break;
+          default:
+            dispatch(setError("An error occurred. Please try again later."));
+            break;
+        }
       })
       .finally(() => {
-        setLoading(false);
+        dispatch(setLoading(false));
       });
-  };
-
-  const handleError = (errorCode) => {
-    switch (errorCode) {
-      case "auth/invalid-email":
-        setError(
-          "Sorry, your email was incorrect. Please double-check your email."
-        );
-        break;
-      case "auth/wrong-password":
-        setError(
-          "Sorry, your password is wrong. Please enter the correct password."
-        );
-        break;
-      case "auth/user-not-found":
-        setError("Sorry, there is no user with this email. Please sign up.");
-        break;
-      default:
-        setError("An error occurred. Please try again later.");
-        break;
-    }
   };
 
   return (
@@ -68,10 +100,11 @@ function LoginPage() {
             autoFocus
             className="text-xs w-full mb-2 rounded border bg-gray-100 border-gray-300 px-2 py-2 focus:outline-none focus:border-gray-400 active:outline-none"
             id="email"
-            placeholder="Phone number, username, or email"
-            type="text"
+            placeholder="Email"
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
           />
           <input
             className="text-xs w-full mb-4 rounded border bg-gray-100 border-gray-300 px-2 py-2 focus:outline-none focus:border-gray-400 active:outline-none"
@@ -80,6 +113,7 @@ function LoginPage() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
           />
           <button
             className={`text-sm text-center ${
@@ -116,7 +150,10 @@ function LoginPage() {
       </div>
       <div className="bg-white border border-gray-300 text-center w-80 py-4">
         <span className="text-sm">Don't have an account?</span>
-        <Link to={"/signup"} className="text-blue-500 ml-1 text-sm font-semibold">
+        <Link
+          to={"/signup"}
+          className="text-blue-500 ml-1 text-sm font-semibold"
+        >
           Sign up
         </Link>
       </div>
