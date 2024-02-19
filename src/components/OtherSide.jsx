@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import users from "../data/Users";
 import { useSelector } from "react-redux";
+import { auth } from "../firebase/Firebase";
 
 const OtherSide = () => {
   const [isMediumScreen, setIsMediumScreen] = useState(false);
@@ -50,20 +51,24 @@ const OtherSide = () => {
     >
       <div className="flex items-center mb-4">
         <div className="rounded-full overflow-hidden mr-2">
-          {/* <img
-            src={currentUser.url}
+          <img
+            src={
+              currentUser.profilePicUrl
+              ? currentUser.profilePicUrl
+              : "https://i.pinimg.com/736x/42/d4/0a/42d40a5d647a714bc53c018c84d26274.jpg"
+            }
             alt={currentUser.username}
             className="h-12 w-12 rounded-full object-cover border-2 border-pink-500"
-          /> */}
+          />
         </div>
         <div>
           <span className="text-sm font-semibold">{currentUser.username}</span>
           <span className="text-sm -mt-1 text-gray-500 block">
-            {currentUser.name}
+            {currentUser.fullname}
           </span>
         </div>
         <div className="flex flex-col ml-auto">
-          <span className="text-sm font-semibold text-blue-600">Switch</span>
+        <button onClick={() => auth.signOut()} className="text-sm font-semibold text-blue-600">Logout</button>
         </div>
       </div>
       <div>

@@ -55,6 +55,7 @@ function SignUpPage() {
           followers: [],
           following: [],
           posts: [],
+          createdAt: Date.now()
         };
   
         await setDoc(doc(firestore, "users", newUser.user.uid), userDoc); 

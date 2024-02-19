@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchUserProfileByUsername,
@@ -8,17 +8,28 @@ import {
 } from "../redux/userProfileSlice";
 import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../utils/Loading";
+import EditProfileModal from "./EditProfileModal"; // Assuming you've saved the EditProfileModal component in a separate file
 
 const ProfileHeader = () => {
   const { username } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userProfile, loading, error } = useSelector(selectUserProfile);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     dispatch(fetchUserProfileByUsername(username));
     dispatch(setLoading(false));
   }, [dispatch, username]);
+
+  const handleSaveProfile = (updatedProfile) => {
+    // Dispatch an action to save the updated profile
+    console.log("Updated Profile:", updatedProfile);
+  };
+
+  const toggleEditModal = () => {
+    setIsEditing(!isEditing);
+  };
 
   if (loading) {
     return <Loading />;
@@ -29,6 +40,10 @@ const ProfileHeader = () => {
     dispatch(setLoading(false));
     navigate("/");
     return null;
+  }
+
+  if (!userProfile) {
+    return <div>No profile found</div>;
   }
 
   const { fullname, bio, profilePicUrl, posts, followers, following } =
@@ -63,18 +78,12 @@ const ProfileHeader = () => {
             <i className="fas fa-check text-white text-xs absolute inset-x-0 ml-1 mt-px"></i>
           </span>
 
-          <a
-            href="#"
+          <button
             className="bg-blue-500 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block block"
+            onClick={toggleEditModal}
           >
-            Follow
-          </a>
-          <a
-            href="#"
-            className="bg-blue-500 px-2 py-1 ml-3 text-white font-semibold text-sm rounded block text-center sm:inline-block block"
-          >
-            edit
-          </a>
+            Edit
+          </button>
         </div>
 
         <ul className="hidden md:flex space-x-8 mb-4">
@@ -104,6 +113,14 @@ const ProfileHeader = () => {
         <span>{bio}</span>
         <p>Lorem ipsum dolor sit amet consectetur</p>
       </div>
+
+      {isEditing && (
+        <EditProfileModal
+          userProfile={userProfile}
+          onSave={handleSaveProfile}
+          onClose={toggleEditModal}
+        />
+      )}
     </header>
   );
 };

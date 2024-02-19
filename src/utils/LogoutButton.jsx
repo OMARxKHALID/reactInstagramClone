@@ -23,7 +23,7 @@ const LogoutButton = () => {
     <button
       className="p-2 rounded-md hover:bg-gray-200 w-full flex items-center space-x-4"
       style={{ width: "200px" }}
-      onClick={handleLogout} // Call handleLogout when the button is clicked
+      onClick={handleLogout} 
     >
       <FiLogOut size={25} />
       <div className="text-black">Logout</div>

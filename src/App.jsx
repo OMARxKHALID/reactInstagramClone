@@ -32,22 +32,24 @@ const App = () => {
   }, []);
 
   const setupAuthListener = () => {
-    return onAuthStateChanged(auth, async (userAuth) => {
-      if (userAuth) {
-
-        const userDocRef = doc(firestore, "users", userAuth.uid);
-        const userDocSnap = await getDoc(userDocRef);
-
-        if (userDocSnap.exists()) {
-          const userData = userDocSnap.data();
-          dispatch(setUser(userData));
-        } else {
-          console.log("User data not found in the database");
-        }
-      } else {
-        dispatch(setUser(null));
-      }
+    return onAuthStateChanged(auth, (userAuth) => {
       dispatch(setLoading(false));
+      
+      if (userAuth) {
+        const userDocRef = doc(firestore, "users", userAuth.uid);
+        getDoc(userDocRef).then((userDocSnap) => {
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            dispatch(setUser(userData));
+          } else {
+            console.log("User data not found in the database");
+          }
+        }).catch((error) => {
+          console.error("Error fetching user document:", error);
+        });
+      } else {
+        dispatch(setUser(null)); 
+      }
     });
   };
 
