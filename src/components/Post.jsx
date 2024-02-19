@@ -15,6 +15,7 @@ const Post = ({ post }) => {
     const [comments, setComments] = useState(initialComments);
     const [newComment, setNewComment] = useState("");
 
+
     useEffect(() => {
         setLikes(count.liked_by);
     }, [count]);

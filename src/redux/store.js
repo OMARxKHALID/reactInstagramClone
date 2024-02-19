@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
-import { authSlice } from './authSlice'; 
+import authReducer from "./authSlice";
+import postsReducer from "./postsSlice";
 
 const rootReducer = combineReducers({
-  auth: authSlice.reducer,
+  auth: authReducer,
+  posts: postsReducer,
 });
 
 const preloadedState = localStorage.getItem('reduxState')
@@ -16,7 +18,18 @@ export const store = configureStore({
 });
 
 store.subscribe(() => {
-  localStorage.setItem('reduxState', JSON.stringify(store.getState()));
+  const state = store.getState();
+  const { auth, posts } = state;
+  const stateToSave = {
+    auth: {
+      user: auth.user,
+      isAuthenticated: auth.isAuthenticated,
+      isLoading: auth.isLoading
+    },
+    posts 
+  };
+  localStorage.setItem('reduxState', JSON.stringify(stateToSave));
 });
+
 
 export default store;

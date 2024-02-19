@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { FaApple, FaGoogle, FaFacebookSquare } from "react-icons/fa";
 import instagramLogo from "../images/instagramLogo.png";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
-import { auth, db } from "../firebase/Firebase";
-import { ref, set } from "firebase/database";
+import { auth, firestore } from "../firebase/Firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading, setError } from "../redux/authSlice";
+import { doc, setDoc } from "firebase/firestore"; // Import doc and setDoc
 
 function SignUpPage() {
   const [fullname, setFullname] = useState("");
@@ -33,56 +33,66 @@ function SignUpPage() {
     setFormValid(isFormValid);
   }, [fullname, username, email, password, confirmPassword]);
 
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
     if (!formValid || loading) return;
     dispatch(setLoading(true));
-
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        const userRef = ref(db, "users/" + user.uid);
-
-        return set(userRef, {
+  
+    try {
+      const newUser = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      if (newUser) {
+        const userDoc = {
+          uid: newUser.user.uid,
+          email: email,
           username: username,
-          name: fullname,
-        });
-      })
-      .then(() => {
+          fullname: fullname,
+          bio: "",
+          profilePicUrl: "",
+          followers: [],
+          following: [],
+          posts: [],
+        };
+  
+        await setDoc(doc(firestore, "users", newUser.user.uid), userDoc); 
         navigate("/login");
-      })
-      .catch((error) => {
-        switch (error.code) {
-          case "auth/invalid-email":
-            dispatch(
-              setError(
-                "Sorry, your email was incorrect. Please double-check your email."
-              )
-            );
-            break;
-          case "auth/weak-password":
-            dispatch(
-              setError(
-                "Sorry, your password is too weak. Please choose a stronger password."
-              )
-            );
-            break;
-          case "auth/email-already-in-use":
-            dispatch(
-              setError(
-                "Sorry, this email is already in use. Please use a different email."
-              )
-            );
-            break;
-          default:
-            dispatch(setError("An error occurred. Please try again later."));
-            break;
-        }
-      })
-      .finally(() => {
-        dispatch(setLoading(false));
-      });
+      }
+    } catch (error) {
+      console.log("signup error:", error.code); 
+      switch (error.code) {
+        case "auth/invalid-email":
+          dispatch(
+            setError(
+              "Sorry, your email was incorrect. Please double-check your email."
+            )
+          );
+          break;
+        case "auth/weak-password":
+          dispatch(
+            setError(
+              "Sorry, your password is too weak. Please choose a stronger password."
+            )
+          );
+          break;
+        case "auth/email-already-in-use":
+          dispatch(
+            setError(
+              "Sorry, this email is already in use. Please use a different email."
+            )
+          );
+          break;
+        default:
+          dispatch(setError("An error occurred. Please try again later."));
+          break;
+      }
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
+  
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col justify-center items-center">

@@ -10,7 +10,7 @@ import SignUpPage from "./pages/SignUpPage";
 import UserPage from "./pages/UserPage";
 import HomePage from "./pages/HomePage";
 import Loading from "./utils/Loading";
-import { auth, db } from "./firebase/Firebase";
+import { auth, firestore } from "./firebase/Firebase"; 
 import { onAuthStateChanged } from "firebase/auth";
 import {
   selectUser,
@@ -18,13 +18,13 @@ import {
   setUser,
 } from "./redux/authSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { ref, get } from "firebase/database";
+import { doc, getDoc } from "firebase/firestore";
 
 const App = () => {
-
   const user = useSelector(selectUser);
   const loading = useSelector((state) => state.auth.isLoading);
   const dispatch = useDispatch();
+
   useEffect(() => {
     const unsubscribe = setupAuthListener();
 
@@ -32,19 +32,15 @@ const App = () => {
   }, []);
 
   const setupAuthListener = () => {
-    return onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const serializedUser = {
-          email: user.email,
-          id: user.uid,
-        };
-        const userRef = ref(db, `users/${user.uid}`);
-        const userSnapshot = await get(userRef);
-  
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.val();
-          const mergedUserData = { ...userData, ...serializedUser };
-          dispatch(setUser(mergedUserData));
+    return onAuthStateChanged(auth, async (userAuth) => {
+      if (userAuth) {
+
+        const userDocRef = doc(firestore, "users", userAuth.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          dispatch(setUser(userData));
         } else {
           console.log("User data not found in the database");
         }
@@ -54,7 +50,6 @@ const App = () => {
       dispatch(setLoading(false));
     });
   };
-  
 
   const renderRoutes = () => {
     if (loading) {

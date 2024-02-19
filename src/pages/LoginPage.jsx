@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import { FaApple, FaGoogle, FaFacebookSquare } from "react-icons/fa";
 import instagramLogo from "../images/instagramLogo.png";
 import { Link, useNavigate } from "react-router-dom";
-import { auth, db } from "../firebase/Firebase";
+import { auth, firestore } from "../firebase/Firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { ref, get } from "firebase/database";
 import { useDispatch, useSelector } from "react-redux";
-import { setLoading, setUser, setError, selectUser} from "../redux/authSlice";
+import { setLoading, setUser, setError, selectUser } from "../redux/authSlice";
+import { doc, getDoc } from "firebase/firestore";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -24,67 +24,64 @@ function LoginPage() {
   }, [email, password]);
 
   useEffect(() => {
-    if (user == null ) {
+    if  (user == null) {
       navigate("/login");
     }
   }, [user, navigate]);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (!formValid || loading) return;
     dispatch(setLoading(true));
 
-    signInWithEmailAndPassword(auth, email, password)
-      .then(async (userCredential) => {
-        const user = userCredential.user;
-        if (user) {
-          const userRef = ref(db, `users/${user.uid}`);
+    try {
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      const newUser = userCred.user;
 
-          const userSnapshot = await get(userRef);
-          if (userSnapshot.exists()) {
-            const userData = userSnapshot.val();
-            console.log("User Data:", userData);
-            dispatch(setUser(userData));
-          } else {
-            console.log("User data not found in the database");
-          }
-          navigate("/");
+      if (newUser) {
+        const userRef = doc(firestore, "users", newUser.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          dispatch(setUser(userData));
         } else {
-          dispatch(setError("User not found"));
+          console.log("User data not found in the database");
         }
-      })
 
-      .catch((error) => {
-        switch (error.code) {
-          case "auth/invalid-email":
-            dispatch(
-              setError(
-                "Sorry, your email was incorrect. Please double-check your email."
-              )
-            );
-            break;
-          case "auth/wrong-password":
-            dispatch(
-              setError(
-                "Sorry, your password is wrong. Please enter the correct password."
-              )
-            );
-            break;
-          case "auth/user-not-found":
-            dispatch(
-              setError(
-                "Sorry, there is no user with this email. Please sign up."
-              )
-            );
-            break;
-          default:
-            dispatch(setError("An error occurred. Please try again later."));
-            break;
-        }
-      })
-      .finally(() => {
-        dispatch(setLoading(false));
-      });
+        navigate("/");
+      } else {
+        dispatch(setError("User not found"));
+      }
+    } catch (error) {
+      console.log("Login error:", error.code);
+      switch (error.code) {
+        case "auth/invalid-email":
+          dispatch(
+            setError(
+              "Sorry, your email was incorrect. Please double-check your email."
+            )
+          );
+          break;
+        case "auth/invalid-credential":
+          dispatch(
+            setError(
+              "Sorry, your credentials are invalid. Please double-check your email and password."
+            )
+          );
+          break;
+        case "auth/user-not-found":
+          dispatch(
+            setError("Sorry, there is no user with this email. Please sign up.")
+          );
+          break;
+        default:
+          dispatch(setError("An error occurred. Please try again later."));
+          break;
+      }
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
 
   return (

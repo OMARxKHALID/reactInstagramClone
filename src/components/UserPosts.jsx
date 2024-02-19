@@ -1,23 +1,26 @@
 import React from 'react';
+import instagramLogo from '../images/instagramLogo.png';
 
-const UserPosts = ({ post }) => {
-    const formattedDate = new Date(post.created_at).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-
-    return (
-        <div className="border border-gray-200 rounded-md p-4 mb-4">
-            <p className="text-sm text-gray-500 mb-2">{formattedDate}</p>
-            <img src={post.images[0].url} alt="Post" className="mb-2 w-full rounded-md" />
-            <p className="text-base">{post.caption}</p>
-            <div className="flex justify-between mt-2">
-                <span>Liked by {post.count.liked_by} people</span>
-                <span>Comments: {post.comments.length}</span>
-            </div>
-        </div>
-    );
+const UserPosts = ({ imageSrc, likes, comments }) => {
+  return (
+    <div className="w-1/3 p-px md:px-3">
+      <a href="#">
+        <article className="post bg-gray-100 text-white relative pb-full md:mb-6">
+          <img className="w-full h-full absolute left-0 top-0 object-cover" src={instagramLogo} alt="image" />
+          <div className="overlay bg-gray-800 bg-opacity-25 w-full h-full absolute left-0 top-0 justify-center items-center space-x-4">
+            <span className="p-2 flex items-center">
+              <i className="fas fa-heart mr-1"></i>
+              {likes}
+            </span>
+            <span className="p-2 flex items-center">
+              <i className="fas fa-comment mr-1"></i>
+              {comments}
+            </span>
+          </div>
+        </article>
+      </a>
+    </div>
+  );
 };
 
 export default UserPosts;
