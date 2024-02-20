@@ -11,7 +11,8 @@ const firebaseConfig = {
   storageBucket: "instaclo-2e4f6.appspot.com",
   messagingSenderId: "345933306094",
   appId: "1:345933306094:web:c4296355204389bb70fbff",
-  measurementId: "G-P5LW7H4GQ1"
+  measurementId: "G-P5LW7H4GQ1",
+  storage: "gs://instaclo-2e4f6.appspot.com"
 };
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

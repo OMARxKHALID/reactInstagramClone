@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import users from "../data/Users";
 import { useSelector } from "react-redux";
 import { auth } from "../firebase/Firebase";
+import { Link } from "react-router-dom";
 
 const OtherSide = () => {
   const [isMediumScreen, setIsMediumScreen] = useState(false);
   const [seeAll, setSeeAll] = useState(false);
   const [followingUsers, setFollowingUsers] = useState(new Set());
-  const userData = useSelector((state) => state.auth.user);
+  const currentUser = useSelector((state) => state.auth.user);
 
   const toggleFollow = (userId) => {
     setFollowingUsers((prevUsers) => {
@@ -42,8 +43,6 @@ const OtherSide = () => {
     return null;
   }
 
-  const currentUser = userData;
-
   return (
     <div
       className="pl-4 right mt-16 p-4 max-w-xs"
@@ -62,7 +61,9 @@ const OtherSide = () => {
           />
         </div>
         <div>
-          <span className="text-sm font-semibold">{currentUser.username}</span>
+        <Link to={`/user/${currentUser.username}`} className="text-sm font-semibold">
+            {currentUser.username}
+          </Link>
           <span className="text-sm -mt-1 text-gray-500 block">
             {currentUser.fullname}
           </span>

@@ -1,128 +1,146 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchUserProfileByUsername,
-  selectUserProfile,
-  setLoading,
-  setError,
-} from "../redux/userProfileSlice";
-import { useNavigate, useParams } from "react-router-dom";
-import Loading from "../utils/Loading";
-import EditProfileModal from "./EditProfileModal"; // Assuming you've saved the EditProfileModal component in a separate file
 
-const ProfileHeader = () => {
-  const { username } = useParams();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { userProfile, loading, error } = useSelector(selectUserProfile);
-  const [isEditing, setIsEditing] = useState(false);
+const EditProfileModal = ({
+  userProfile,
+  onSave,
+  onClose,
+  onImageChange,
+  selectedImage,
+}) => {
+  const [updatedProfile, setUpdatedProfile] = useState({ ...userProfile });
 
   useEffect(() => {
-    dispatch(fetchUserProfileByUsername(username));
-    dispatch(setLoading(false));
-  }, [dispatch, username]);
+    if (selectedImage) {
+      setUpdatedProfile((prevProfile) => ({
+        ...prevProfile,
+        profilePicUrl: selectedImage,
+      }));
+    }
+  }, [selectedImage]);
 
-  const handleSaveProfile = (updatedProfile) => {
-    // Dispatch an action to save the updated profile
-    console.log("Updated Profile:", updatedProfile);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUpdatedProfile((prevProfile) => ({
+      ...prevProfile,
+      [name]: value,
+    }));
   };
 
-  const toggleEditModal = () => {
-    setIsEditing(!isEditing);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave(updatedProfile);
+    onClose();
   };
 
-  if (loading) {
-    return <Loading />;
-  }
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    const maxSize = 2 * 1024 * 1024; // 2 MB
 
-  if (error) {
-    dispatch(setError(null));
-    dispatch(setLoading(false));
-    navigate("/");
-    return null;
-  }
-
-  if (!userProfile) {
-    return <div>No profile found</div>;
-  }
-
-  const { fullname, bio, profilePicUrl, posts, followers, following } =
-    userProfile;
-  const postsCount = posts ? Object.keys(posts).length : 0;
-  const followersCount = followers ? Object.keys(followers).length : 0;
-  const followingCount = following ? Object.keys(following).length : 0;
+    if (file && file.type.startsWith("image/")) {
+      if (file.size > maxSize) {
+        console.error("Image size is greater than 2 MB");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        onImageChange(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   return (
-    <header className="flex flex-wrap items-center p-4 md:py-8">
-      <div className="md:w-3/12 md:ml-16">
-        <img
-          className="w-20 h-20 md:w-40 md:h-40 object-cover rounded-full border-2 border-pink-600 p-1"
-          src={
-            profilePicUrl ||
-            "https://i.pinimg.com/736x/42/d4/0a/42d40a5d647a714bc53c018c84d26274.jpg"
-          }
-          alt="profile"
-        />
+    <div className="fixed inset-0 flex items-center justify-center z-50">
+      <div className="absolute inset-0 bg-black opacity-50"></div>
+      <div className="bg-white p-6 rounded-lg shadow-xl z-50 w-full max-w-md">
+        <h2 className="text-lg font-semibold mb-4">Edit Profile</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="relative w-20 h-20">
+              <img
+                className="w-full h-full object-cover rounded-full border-2 border-pink-600 p-1"
+                src={
+                  updatedProfile.profilePicUrl ||
+                  selectedImage ||
+                  "https://via.placeholder.com/150"
+                }
+                alt="profile"
+              />
+              <input
+                type="file"
+                id="profilePicUrl"
+                name="profilePicUrl"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => document.getElementById("profilePicUrl").click()}
+              className="px-4 py-2 bg-blue-500 text-white font-semibold rounded"
+            >
+              Change Image
+            </button>
+          </div>
+
+          <div>
+            <label htmlFor="username" className="block mb-1">
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={updatedProfile.username}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+          <div>
+            <label htmlFor="fullname" className="block mb-1">
+              Full Name
+            </label>
+            <input
+              type="text"
+              id="fullname"
+              name="fullname"
+              value={updatedProfile.fullname}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+          <div>
+            <label htmlFor="bio" className="block mb-1">
+              Bio
+            </label>
+            <textarea
+              id="bio"
+              name="bio"
+              value={updatedProfile.bio}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            ></textarea>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-500 text-white font-semibold rounded"
+            >
+              Save
+            </button>
+          </div>
+        </form>
       </div>
-
-      <div className="w-8/12 md:w-7/12 ml-4">
-        <div className="md:flex md:flex-wrap md:items-center mb-4">
-          <h2 className="text-3xl inline-block font-light md:mr-2 mb-2 sm:mb-0">
-            {username}
-          </h2>
-
-          <span
-            className="inline-block fas fa-certificate fa-lg text-blue-500 relative mr-6 text-xl transform -translate-y-2"
-            aria-hidden="true"
-          >
-            <i className="fas fa-check text-white text-xs absolute inset-x-0 ml-1 mt-px"></i>
-          </span>
-
-          <button
-            className="bg-blue-500 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block block"
-            onClick={toggleEditModal}
-          >
-            Edit
-          </button>
-        </div>
-
-        <ul className="hidden md:flex space-x-8 mb-4">
-          <li>
-            <span className="font-semibold">{postsCount}</span>
-            posts
-          </li>
-
-          <li>
-            <span className="font-semibold">{followersCount}</span>
-            followers
-          </li>
-          <li>
-            <span className="font-semibold">{followingCount}</span>
-            following
-          </li>
-        </ul>
-
-        <div className="hidden md:block">
-          <h1 className="font-semibold">{fullname}</h1>
-          <span>{bio}</span>
-          <p>Lorem ipsum dolor sit amet consectetur</p>
-        </div>
-      </div>
-      <div className="md:hidden text-sm my-2">
-        <h1 className="font-semibold">{fullname}</h1>
-        <span>{bio}</span>
-        <p>Lorem ipsum dolor sit amet consectetur</p>
-      </div>
-
-      {isEditing && (
-        <EditProfileModal
-          userProfile={userProfile}
-          onSave={handleSaveProfile}
-          onClose={toggleEditModal}
-        />
-      )}
-    </header>
+    </div>
   );
 };
 
-export default ProfileHeader;
+export default EditProfileModal;

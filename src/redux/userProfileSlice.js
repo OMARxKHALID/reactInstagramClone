@@ -6,6 +6,7 @@ const initialState = {
   userProfile: null,
   loading: false,
   error: null,
+  isEditing: false,
 };
 
 export const userProfileSlice = createSlice({
@@ -25,10 +26,13 @@ export const userProfileSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    setEditing: (state, action) => {
+      state.isEditing = action.payload;      
+    }
   },
 });
 
-export const { setLoading, setUserProfile, setError } = userProfileSlice.actions;
+export const { setLoading, setUserProfile, setError, setEditing } = userProfileSlice.actions;
 
 export const selectUserProfile = (state) => state.userProfile;
 
