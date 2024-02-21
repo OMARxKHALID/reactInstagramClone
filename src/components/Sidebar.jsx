@@ -14,24 +14,24 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import instagramLogo from "../images/instagramLogo.png";
 import LogoutButton from "../utils/LogoutButton";
+import { selectUser } from "../redux/authSlice";
+import { useSelector } from "react-redux";
 
 const SideBar = () => {
   const [isMediumScreen, setIsMediumScreen] = useState(false);
   const location = useLocation();
+  const loggedUser = useSelector(selectUser);
 
   useEffect(() => {
     const handleResize = () => {
       setIsMediumScreen(window.matchMedia("(max-width: 1100px)").matches);
     };
-
     handleResize();
     window.addEventListener("resize", handleResize);
-
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-
 
   const links = [
     {
@@ -72,7 +72,7 @@ const SideBar = () => {
     },
     {
       name: "Profile",
-      route: "#",
+      route: `/user/${loggedUser.username}`,
       IconLine: RiUser3Line,
       IconFilled: RiUser3Fill,
     },
@@ -81,7 +81,7 @@ const SideBar = () => {
   if (isMediumScreen) {
     return null;
   }
-  
+
   return (
     <div
       className="fixed left-4 h-full border-r-[1px] border-solid border-gray-300"
@@ -111,7 +111,7 @@ const SideBar = () => {
             );
           })}
         </div>
-        <LogoutButton/>
+        <LogoutButton />
       </div>
     </div>
   );

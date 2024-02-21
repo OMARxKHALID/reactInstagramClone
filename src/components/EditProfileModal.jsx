@@ -58,7 +58,7 @@ const EditProfileModal = ({
           <div className="flex items-center justify-between mb-4">
             <div className="relative w-20 h-20">
               <img
-                className="w-full h-full object-cover rounded-full border-2 border-pink-600 p-1"
+                className="w-full h-full object-cover rounded-full border-2 border-pink-300"
                 src={
                   updatedProfile.profilePicUrl ||
                   selectedImage ||
@@ -78,7 +78,7 @@ const EditProfileModal = ({
             <button
               type="button"
               onClick={() => document.getElementById("profilePicUrl").click()}
-              className="px-4 py-2 bg-blue-500 text-white font-semibold rounded"
+              className="px-4 py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
             >
               Change Image
             </button>
@@ -94,7 +94,7 @@ const EditProfileModal = ({
               name="username"
               value={updatedProfile.username}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500"
             />
           </div>
           <div>
@@ -107,7 +107,7 @@ const EditProfileModal = ({
               name="fullname"
               value={updatedProfile.fullname}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500"
             />
           </div>
           <div>
@@ -119,20 +119,20 @@ const EditProfileModal = ({
               name="bio"
               value={updatedProfile.bio}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500"
             ></textarea>
           </div>
           <div className="flex justify-end space-x-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded"
+              className="px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-500 text-white font-semibold rounded"
+              className="px-4 py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
             >
               Save
             </button>

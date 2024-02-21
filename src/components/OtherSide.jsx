@@ -28,7 +28,7 @@ const OtherSide = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMediumScreen(window.matchMedia("(max-width: 900px)").matches);
+      setIsMediumScreen(window.matchMedia("(max-width: 1020px)").matches);
     };
 
     handleResize();

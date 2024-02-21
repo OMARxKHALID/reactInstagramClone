@@ -2,11 +2,8 @@ import React, { useState, useEffect } from "react";
 import { FaApple, FaGoogle, FaFacebookSquare } from "react-icons/fa";
 import instagramLogo from "../images/instagramLogo.png";
 import { Link, useNavigate } from "react-router-dom";
-import { auth, firestore } from "../firebase/Firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
-import { setLoading, setError } from "../redux/authSlice";
-import { doc, setDoc } from "firebase/firestore"; // Import doc and setDoc
+import { signupUser, selectError, selectLoading, selectUser } from "../redux/authSlice";
 
 function SignUpPage() {
   const [fullname, setFullname] = useState("");
@@ -15,11 +12,13 @@ function SignUpPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [formValid, setFormValid] = useState(false);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const loading = useSelector((state) => state.auth.isLoading);
-  const error = useSelector((state) => state.auth.error);
+  const loading = useSelector(selectLoading);
+  const error = useSelector(selectError);
+  const user = useSelector(selectUser);
+
 
   useEffect(() => {
     const isFormValid =
@@ -33,67 +32,18 @@ function SignUpPage() {
     setFormValid(isFormValid);
   }, [fullname, username, email, password, confirmPassword]);
 
+  useEffect(() => {
+    if (user) {
+      navigate("/")
+    }
+  }, [user]);
+
   const handleSignUp = async (e) => {
     e.preventDefault();
     if (!formValid || loading) return;
-    dispatch(setLoading(true));
-  
-    try {
-      const newUser = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      if (newUser) {
-        const userDoc = {
-          uid: newUser.user.uid,
-          email: email,
-          username: username,
-          fullname: fullname,
-          bio: "",
-          profilePicUrl: "",
-          followers: [],
-          following: [],
-          posts: [],
-          createdAt: Date.now()
-        };
-  
-        await setDoc(doc(firestore, "users", newUser.user.uid), userDoc); 
-        navigate("/login");
-      }
-    } catch (error) {
-      console.log("signup error:", error.code); 
-      switch (error.code) {
-        case "auth/invalid-email":
-          dispatch(
-            setError(
-              "Sorry, your email was incorrect. Please double-check your email."
-            )
-          );
-          break;
-        case "auth/weak-password":
-          dispatch(
-            setError(
-              "Sorry, your password is too weak. Please choose a stronger password."
-            )
-          );
-          break;
-        case "auth/email-already-in-use":
-          dispatch(
-            setError(
-              "Sorry, this email is already in use. Please use a different email."
-            )
-          );
-          break;
-        default:
-          dispatch(setError("An error occurred. Please try again later."));
-          break;
-      }
-    } finally {
-      dispatch(setLoading(false));
-    }
+
+    dispatch(signupUser({ fullname, username, email, password }));
   };
-  
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col justify-center items-center">

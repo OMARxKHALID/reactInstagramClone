@@ -20,19 +20,22 @@ function Footer() {
     };
   }, []);
 
+  const links = [
+    { to: "/", icon: <FiHome size={24} />, label: "Home" },
+    { to: "/", icon: <MdExplore size={24} />, label: "Explore" },
+    { to: "/", icon: <FiPlusSquare size={24} />, label: "Create" },
+    { to: "/", icon: <FiHeart size={24} />, label: "Favorites" },
+    { to: "/", icon: <FiSearch size={24} />, label: "Search" },
+  ];
+
   return isMobile ? (
-    <footer className="fixed bottom-0 left-0 right-0 shadow-md bg-white max-w-lg mx-auto px-3 py-5">
+    <footer className="fixed bottom-0 left-0 right-0 shadow-md bg-white w-lg mx-auto px-3 py-5">
       <div className="flex justify-around items-center">
-        <Link to="/">
-          <FiHome size={24} className="cursor-pointer hover:text-gray-600" />
-        </Link>
-        <MdExplore size={24} className="cursor-pointer hover:text-gray-600" />
-        <FiPlusSquare
-          size={24}
-          className="cursor-pointer hover:text-gray-600"
-        />
-        <FiHeart size={24} className="cursor-pointer hover:text-gray-600" />
-        <FiSearch size={24} className="cursor-pointer hover:text-gray-600" />
+        {links.map((link, index) => (
+          <Link key={index} to={link.to} >
+            {link.icon}
+          </Link>
+        ))}
       </div>
     </footer>
   ) : null;

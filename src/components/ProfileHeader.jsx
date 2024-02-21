@@ -7,27 +7,25 @@ import {
   selectUserProfile,
   fetchUserProfileByUsername,
   setError,
+  setEditing,
 } from "../redux/userProfileSlice";
-import { setUser } from "../redux/authSlice";
+import { selectUser, setUser } from "../redux/authSlice";
 import { storage, firestore } from "../firebase/Firebase";
 import { useNavigate, useParams } from "react-router-dom";
-import Loading from "../utils/Loading";
 import EditProfileModal from "./EditProfileModal";
+import LoadingSpinner from "../utils/loadingSpinner";
 
 const ProfileHeader = () => {
   const { username } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { userProfile, loading, error } = useSelector(selectUserProfile);
-  const [isEditing, setIsEditing] = useState(false);
+  const { userProfile, loading, error, isEditing } =
+    useSelector(selectUserProfile);
   const [selectedImage, setSelectedImage] = useState(null);
+  const authenticatedUser = useSelector(selectUser);
 
   useEffect(() => {
-    if (!userProfile) {
-
     dispatch(fetchUserProfileByUsername(username));
-  }
-
   }, [dispatch, username]);
 
   const handleSaveProfile = async (updatedProfile) => {
@@ -50,7 +48,7 @@ const ProfileHeader = () => {
       dispatch(setUserProfile(updatedUserProfile));
       dispatch(setUser(updatedUserProfile));
 
-      setIsEditing(false);
+      dispatch(setEditing(!isEditing));
     } catch (error) {
       console.error("Error while updating profile:", error);
       dispatch(setError(error.message));
@@ -58,72 +56,107 @@ const ProfileHeader = () => {
   };
 
   const toggleEditModal = () => {
-    setIsEditing(!isEditing);
+    dispatch(setEditing(!isEditing));
   };
 
   const handleImageChange = (imageDataUrl) => {
     setSelectedImage(imageDataUrl);
   };
 
-  if (loading) return <Loading />;
   if (error) {
-    dispatch(setError(null));
+    dispatch(setError(error));
     navigate("/");
     return null;
   }
-  if (!userProfile) return <div>No profile found</div>;
 
-  const { fullname, bio, profilePicUrl, posts, followers, following } =
+  const { fullname, bio, profilePicUrl, posts, followers, following, uid } =
     userProfile;
   const postsCount = posts ? Object.keys(posts).length : 0;
   const followersCount = followers ? Object.keys(followers).length : 0;
   const followingCount = following ? Object.keys(following).length : 0;
+  const isOwner = authenticatedUser && authenticatedUser.uid === uid;
 
   return (
-    <header className="flex flex-wrap items-center p-4 md:py-8">
-      <div className="md:w-3/12 md:ml-16">
-        <img
-          className="w-20 h-20 md:w-40 md:h-40 object-cover rounded-full border-2 border-pink-600 p-1"
-          src={
-            profilePicUrl ||
-            "https://i.pinimg.com/736x/42/d4/0a/42d40a5d647a714bc53c018c84d26274.jpg"
-          }
-          alt="profile"
-        />
-      </div>
-      <div className="w-8/12 md:w-7/12 ml-4">
-        <div className="md:flex md:flex-wrap md:items-center mb-4">
-          <h2 className="text-3xl font-light md:mr-2 mb-2 sm:mb-0">{username}</h2>
-          <span className="inline-block text-blue-500 relative mr-6 transform -translate-y-2">
-            <i className="fas fa-check text-white text-xs absolute inset-x-0 ml-1 mt-px"></i>
-          </span>
-          <button
-            className="bg-blue-500 px-2 py-1 text-white font-semibold text-sm rounded block text-center sm:inline-block block"
-            onClick={toggleEditModal}
-          >
-            Edit
-          </button>
+    <header className="w-full">
+      {loading ? (
+        <LoadingSpinner />
+      ) : (
+        <div className="max-w-screen-md px-10 py-6 mx-4 mt-12 bg-white rounded-lg shadow md:mx-auto border-1">
+          <div className="flex flex-col items-start w-full m-auto sm:flex-row">
+            <div className="flex mx-auto sm:mr-10 sm:m-0">
+              <div className="items-center justify-center w-20 h-20 m-auto mr-4 sm:w-40 sm:h-40">
+                <img
+                  alt="profil"
+                  src={
+                    profilePicUrl ||
+                    "https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8bWFufGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
+                  }
+                  className="object-cover w-20 h-20 mx-auto rounded-full sm:w-40 sm:h-40"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col pt-4 mx-auto my-auto sm:pt-0 sm:mb-3 sm:mx-0">
+              <div className="flex flex-col mx-auto sm:flex-row sm:mx-0 ">
+                <h2 className="flex pr-4 text-xl font-light text-gray-900 sm:text-3xl">
+                  {username}
+                </h2>
+                <div className="flex">
+                  {isOwner && (
+                    <>
+                      <button
+                        className="flex items-center px-4 font-semibold rounded-md bg-gray-200 hover:bg-gray-300"
+                        style={{ padding: "0 16px", fontSize: "13px" }}
+                        onClick={toggleEditModal}
+                      >
+                        Edit profile
+                      </button>
+
+                      <a
+                        className="p-1 ml-2 text-gray-700 border-transparent rounded-full cursor-pointfocus:outline-none focus:text-gray-600"
+                        aria-label="Notifications"
+                      >
+                        <svg
+                          className="w-4 h-4 sm:w-8 sm:h-8"
+                          fill="none"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="1.5"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </a>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-3 space-x-2">
+                <div className="flex">
+                  <span className="mr-1 font-semibold">{postsCount}</span> Post
+                </div>
+                <div className="flex">
+                  <span className="mr-1 font-semibold">{followersCount}</span>{" "}
+                  Follower
+                </div>
+                <div className="flex">
+                  <span className="mr-1 font-semibold">{followingCount}</span>{" "}
+                  Following
+                </div>
+              </div>
+              <div className="pt-1">
+                <h1 className="text-lg font-semibold text-gray-800 sm:text-xl">
+                  {fullname}
+                </h1>
+                <p className="text-sm text-gray-500 md:text-base">Fotografer</p>
+                <p className="text-sm text-gray-800 md:text-base">{bio}</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <ul className="hidden md:flex space-x-8 mb-4">
-          <li>
-            <span className="font-semibold">{postsCount}</span> posts
-          </li>
-          <li>
-            <span className="font-semibold">{followersCount}</span> followers
-          </li>
-          <li>
-            <span className="font-semibold">{followingCount}</span> following
-          </li>
-        </ul>
-        <div className="hidden md:block">
-          <h1 className="font-semibold">{fullname}</h1>
-          <span>{bio}</span>
-        </div>
-      </div>
-      <div className="md:hidden text-sm my-2">
-        <h1 className="font-semibold">{fullname}</h1>
-        <span>{bio}</span>
-      </div>
+      )}
+
       {isEditing && (
         <EditProfileModal
           userProfile={userProfile}

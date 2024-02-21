@@ -1,22 +1,19 @@
-import React, { useState, useEffect } from "react";
 import { FaApple, FaGoogle, FaFacebookSquare } from "react-icons/fa";
 import instagramLogo from "../images/instagramLogo.png";
 import { Link, useNavigate } from "react-router-dom";
-import { auth, firestore } from "../firebase/Firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setLoading, setUser, setError, selectUser } from "../redux/authSlice";
-import { doc, getDoc } from "firebase/firestore";
+import { loginUser, selectError, selectLoading, selectUser } from "../redux/authSlice";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [formValid, setFormValid] = useState(false);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const loading = useSelector((state) => state.auth.isLoading);
-  const error = useSelector((state) => state.auth.error);
+  const loading = useSelector(selectLoading);
+  const error = useSelector(selectError);
   const user = useSelector(selectUser);
 
   useEffect(() => {
@@ -24,64 +21,16 @@ function LoginPage() {
   }, [email, password]);
 
   useEffect(() => {
-    if  (user == null) {
-      navigate("/login");
+    if (user) {
+      navigate("/");
     }
-  }, [user, navigate]);
+  }, [user]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!formValid || loading) return;
-    dispatch(setLoading(true));
 
-    try {
-      const userCred = await signInWithEmailAndPassword(auth, email, password);
-      const newUser = userCred.user;
-
-      if (newUser) {
-        const userRef = doc(firestore, "users", newUser.uid);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          dispatch(setUser(userData));
-        } else {
-          console.log("User data not found in the database");
-        }
-
-        navigate("/");
-      } else {
-        dispatch(setError("User not found"));
-      }
-    } catch (error) {
-      console.log("Login error:", error.code);
-      switch (error.code) {
-        case "auth/invalid-email":
-          dispatch(
-            setError(
-              "Sorry, your email was incorrect. Please double-check your email."
-            )
-          );
-          break;
-        case "auth/invalid-credential":
-          dispatch(
-            setError(
-              "Sorry, your credentials are invalid. Please double-check your email and password."
-            )
-          );
-          break;
-        case "auth/user-not-found":
-          dispatch(
-            setError("Sorry, there is no user with this email. Please sign up.")
-          );
-          break;
-        default:
-          dispatch(setError("An error occurred. Please try again later."));
-          break;
-      }
-    } finally {
-      dispatch(setLoading(false));
-    }
+    dispatch(loginUser({ email, password }));
   };
 
   return (

@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { firestore } from "../firebase/Firebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
-
 const initialState = {
   userProfile: null,
   loading: false,
