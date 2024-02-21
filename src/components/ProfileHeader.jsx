@@ -69,7 +69,7 @@ const ProfileHeader = () => {
     return null;
   }
 
-  const { fullname, bio, profilePicUrl, posts, followers, following, uid } =
+  const { bio, profilePicUrl, posts, followers, following, uid } =
     userProfile;
   const postsCount = posts ? Object.keys(posts).length : 0;
   const followersCount = followers ? Object.keys(followers).length : 0;
@@ -147,7 +147,7 @@ const ProfileHeader = () => {
               </div>
               <div className="pt-1">
                 <h1 className="text-lg font-semibold text-gray-800 sm:text-xl">
-                  {fullname}
+                  {userProfile.fullname}
                 </h1>
                 <p className="text-sm text-gray-500 md:text-base">Fotografer</p>
                 <p className="text-sm text-gray-800 md:text-base">{bio}</p>

@@ -11,7 +11,7 @@ const ProfileIcon = () => {
         <img
           src={currentUser.profilePicUrl}
           alt={currentUser.username}
-          className="h-8 w-8 rounded-full object-cover border-2 border-black"
+          className="h-7 w-7 rounded-full object-cover border-2 border-black"
         />
       </div>
     </div>
