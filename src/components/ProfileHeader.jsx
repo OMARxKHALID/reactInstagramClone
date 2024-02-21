@@ -69,12 +69,10 @@ const ProfileHeader = () => {
     return null;
   }
 
-  const { bio, profilePicUrl, posts, followers, following, uid } =
-    userProfile;
-  const postsCount = posts ? Object.keys(posts).length : 0;
-  const followersCount = followers ? Object.keys(followers).length : 0;
-  const followingCount = following ? Object.keys(following).length : 0;
-  const isOwner = authenticatedUser && authenticatedUser.uid === uid;
+  const postsCount = userProfile.posts ? Object.keys(userProfile.posts).length : 0;
+  const followersCount = userProfile.followers ? Object.keys(userProfile.followers).length : 0;
+  const followingCount = userProfile.following ? Object.keys(userProfile.following).length : 0;
+  const isOwner = authenticatedUser && authenticatedUser.uid === userProfile.uid;
 
   return (
     <header className="w-full">
@@ -88,7 +86,7 @@ const ProfileHeader = () => {
                 <img
                   alt="profil"
                   src={
-                    profilePicUrl ||
+                    userProfile.profilePicUrl ||
                     "https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8bWFufGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
                   }
                   className="object-cover w-20 h-20 mx-auto rounded-full sm:w-40 sm:h-40"
@@ -150,7 +148,7 @@ const ProfileHeader = () => {
                   {userProfile.fullname}
                 </h1>
                 <p className="text-sm text-gray-500 md:text-base">Fotografer</p>
-                <p className="text-sm text-gray-800 md:text-base">{bio}</p>
+                <p className="text-sm text-gray-800 md:text-base">{userProfile.bio}</p>
               </div>
             </div>
           </div>
