@@ -69,9 +69,9 @@ const ProfileHeader = () => {
     return null;
   }
 
-  const postsCount = userProfile.posts ? Object.keys(userProfile.posts).length : 0;
-  const followersCount = userProfile.followers ? Object.keys(userProfile.followers).length : 0;
-  const followingCount = userProfile.following ? Object.keys(userProfile.following).length : 0;
+  const postsCount = Object.keys(userProfile.posts).length;
+  const followersCount = Object.keys(userProfile.followers).length;
+  const followingCount = Object.keys(userProfile.following).length;
   const isOwner = authenticatedUser && authenticatedUser.uid === userProfile.uid;
 
   return (
