@@ -13,6 +13,7 @@ export const authSlice = createSlice({
     isAuthenticated: false,
     isLoading: false,
     error: null,
+    isUpdating: false,
   },
   reducers: {
     setUser: (state, action) => {
@@ -31,6 +32,9 @@ export const authSlice = createSlice({
       state.user = null;
       state.isAuthenticated = false;
       state.error = null;
+    },
+    setIsUpdating: (state, action) => {
+      state.isUpdating = action.payload;
     },
   },
 });
@@ -151,6 +155,6 @@ export const selectUser = (state) => state.auth.user;
 export const selectLoading = (state) => state.auth.isLoading;
 export const selectError = (state) => state.auth.error;
 
-export const { logoutUser, setUser, setLoading } = authSlice.actions;
+export const { setUser, setLoading, setError, logoutUser, setIsUpdating } = authSlice.actions;
 
 export default authSlice.reducer;

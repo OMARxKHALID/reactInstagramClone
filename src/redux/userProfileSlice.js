@@ -27,7 +27,7 @@ export const userProfileSlice = createSlice({
     },
     setEditing: (state, action) => {
       state.isEditing = action.payload;      
-    }
+    },
   },
 });
 

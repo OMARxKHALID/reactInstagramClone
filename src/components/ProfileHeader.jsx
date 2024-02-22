@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import {
   setUserProfile,
   selectUserProfile,
@@ -9,11 +9,12 @@ import {
   setError,
   setEditing,
 } from "../redux/userProfileSlice";
-import { selectUser, setUser } from "../redux/authSlice";
+import { selectUser, setUser, setIsUpdating } from "../redux/authSlice";
 import { storage, firestore } from "../firebase/Firebase";
 import { useNavigate, useParams } from "react-router-dom";
 import EditProfileModal from "./EditProfileModal";
 import LoadingSpinner from "../utils/loadingSpinner";
+import { arrayRemove, arrayUnion } from "firebase/firestore";
 
 const ProfileHeader = () => {
   const { username } = useParams();
@@ -22,11 +23,27 @@ const ProfileHeader = () => {
   const { userProfile, loading, error, isEditing } =
     useSelector(selectUserProfile);
   const [selectedImage, setSelectedImage] = useState(null);
-  const authenticatedUser = useSelector(selectUser);
-
+  const authUser = useSelector(selectUser);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const isUpdating = useSelector((state) => state.auth.isUpdating);
   useEffect(() => {
     dispatch(fetchUserProfileByUsername(username));
   }, [dispatch, username]);
+
+  useEffect(() => {
+    const fetchFollowingStatus = async () => {
+      if (authUser && userProfile) {
+        const userDocRef = doc(firestore, "users", authUser.uid);
+        const docSnap = await getDoc(userDocRef);
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          setIsFollowing(userData.following.includes(userProfile.uid));
+        }
+      }
+    };
+
+    fetchFollowingStatus();
+  }, [authUser, userProfile]);
 
   const handleSaveProfile = async (updatedProfile) => {
     try {
@@ -69,12 +86,66 @@ const ProfileHeader = () => {
     return null;
   }
 
+  const handleFollowUser = async () => {
+    try {
+      dispatch(setIsUpdating(true));
+      const currentUserRef = doc(firestore, "users", authUser.uid);
+      const userToFollowOrUnfollowRef = doc(
+        firestore,
+        "users",
+        userProfile.uid
+      );
+
+      let followingAction;
+      let followersAction;
+      let newIsFollowing;
+
+      if (isFollowing) {
+        followingAction = arrayRemove(userProfile.uid);
+        followersAction = arrayRemove(authUser.uid);
+        newIsFollowing = false;
+      } else {
+        followingAction = arrayUnion(userProfile.uid);
+        followersAction = arrayUnion(authUser.uid);
+        newIsFollowing = true;
+      }
+
+      await updateDoc(currentUserRef, { following: followingAction });
+      await updateDoc(userToFollowOrUnfollowRef, {
+        followers: followersAction,
+      });
+
+      setIsFollowing(newIsFollowing);
+      dispatch(
+        setUser({
+          ...authUser,
+          following: newIsFollowing
+            ? [...authUser.following, userProfile.uid]
+            : authUser.following.filter((uid) => uid !== userProfile.uid),
+        })
+      );
+      dispatch(
+        setUserProfile({
+          ...userProfile,
+          followers: newIsFollowing
+            ? [...userProfile.followers, authUser.uid]
+            : userProfile.followers.filter((uid) => uid !== authUser.uid),
+        })
+      );
+    } catch (error) {
+      console.error(error);
+    } finally {
+      dispatch(setIsUpdating(false));
+      console.log("Done following");
+    }
+  };
+
   const { fullname, bio, profilePicUrl, posts, followers, following, uid } =
     userProfile;
   const postsCount = posts ? Object.keys(posts).length : 0;
   const followersCount = followers ? Object.keys(followers).length : 0;
   const followingCount = following ? Object.keys(following).length : 0;
-  const isOwner = authenticatedUser && authenticatedUser.uid === uid;
+  const isOwner = authUser && authUser.uid === uid;
 
   return (
     <header className="w-full">
@@ -89,7 +160,7 @@ const ProfileHeader = () => {
                   alt="profil"
                   src={
                     profilePicUrl ||
-                    "https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8bWFufGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
+                    "https://via.placeholder.com/150"
                   }
                   className="object-cover w-20 h-20 mx-auto rounded-full sm:w-40 sm:h-40"
                 />
@@ -101,7 +172,7 @@ const ProfileHeader = () => {
                   {username}
                 </h2>
                 <div className="flex">
-                  {isOwner && (
+                  {isOwner ? (
                     <>
                       <button
                         className="flex items-center px-4 font-semibold rounded-md bg-gray-200 hover:bg-gray-300"
@@ -129,6 +200,18 @@ const ProfileHeader = () => {
                         </svg>
                       </a>
                     </>
+                  ) : (
+                    <button
+                    className="flex items-center text-sm font-semibold py-2 px-7 rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                    disabled={isUpdating}
+                    onClick={handleFollowUser}
+                  >
+                    {isUpdating ? (
+                      <div className="loading-spinner flex item-center justify-center"></div>
+                    ) : (
+                      <>{isFollowing ? "Unfollow" : "Follow"}</>
+                      )}
+                  </button>
                   )}
                 </div>
               </div>
