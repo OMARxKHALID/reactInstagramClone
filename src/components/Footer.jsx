@@ -29,7 +29,7 @@ function Footer() {
   ];
 
   return isMobile ? (
-    <footer className="fixed bottom-0 left-0 right-0 shadow-md bg-white w-lg mx-auto px-3 py-5">
+    <footer className="fixed bottom-0 left-0 right-0 shadow-md bg-white w-lg mx-auto px-3 py-4">
       <div className="flex justify-around items-center">
         {links.map((link, index) => (
           <Link key={index} to={link.to} >

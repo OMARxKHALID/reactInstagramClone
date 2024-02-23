@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getDownloadURL, ref, uploadString } from "firebase/storage";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   setUserProfile,
   selectUserProfile,
   fetchUserProfileByUsername,
   setError,
-  setEditing,
+  clearUserProfile,
 } from "../redux/userProfileSlice";
-import { selectUser, setUser, setIsUpdating } from "../redux/authSlice";
+import { selectUser, setUser } from "../redux/authSlice";
 import { storage, firestore } from "../firebase/Firebase";
-import { useNavigate, useParams } from "react-router-dom";
-import EditProfileModal from "./EditProfileModal";
 import LoadingSpinner from "../utils/loadingSpinner";
-import { arrayRemove, arrayUnion } from "firebase/firestore";
+import useFollowAndUnfollowUser from "../hooks/useFollowAndUnfollowUser";
+import EditProfileModal from "../modal/EditProfileModal";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
+import { doc, updateDoc } from "firebase/firestore";
 
 const ProfileHeader = () => {
   const { username } = useParams();
@@ -22,28 +22,15 @@ const ProfileHeader = () => {
   const navigate = useNavigate();
   const { userProfile, loading, error, isEditing } =
     useSelector(selectUserProfile);
-  const [selectedImage, setSelectedImage] = useState(null);
   const authUser = useSelector(selectUser);
-  const [isFollowing, setIsFollowing] = useState(false);
+  const { isFollowing, followOrUnfollowUser } =
+    useFollowAndUnfollowUser(userProfile);
   const isUpdating = useSelector((state) => state.auth.isUpdating);
+  const [selectedImage, setSelectedImage] = useState(null);
+
   useEffect(() => {
     dispatch(fetchUserProfileByUsername(username));
   }, [dispatch, username]);
-
-  useEffect(() => {
-    const fetchFollowingStatus = async () => {
-      if (authUser && userProfile) {
-        const userDocRef = doc(firestore, "users", authUser.uid);
-        const docSnap = await getDoc(userDocRef);
-        if (docSnap.exists()) {
-          const userData = docSnap.data();
-          setIsFollowing(userData.following.includes(userProfile.uid));
-        }
-      }
-    };
-
-    fetchFollowingStatus();
-  }, [authUser, userProfile]);
 
   const handleSaveProfile = async (updatedProfile) => {
     try {
@@ -64,7 +51,6 @@ const ProfileHeader = () => {
 
       dispatch(setUserProfile(updatedUserProfile));
       dispatch(setUser(updatedUserProfile));
-
       dispatch(setEditing(!isEditing));
     } catch (error) {
       console.error("Error while updating profile:", error);
@@ -80,68 +66,21 @@ const ProfileHeader = () => {
     setSelectedImage(imageDataUrl);
   };
 
+  useEffect(() => {
+    if (error || userProfile === null) {
+      dispatch(clearUserProfile());
+      dispatch(fetchUserProfileByUsername(username));
+    }
+  }, [dispatch, error, userProfile, username]);
+
   if (error) {
     dispatch(setError(error));
     navigate("/");
     return null;
   }
 
-  const handleFollowUser = async () => {
-    try {
-      dispatch(setIsUpdating(true));
-      const currentUserRef = doc(firestore, "users", authUser.uid);
-      const userToFollowOrUnfollowRef = doc(
-        firestore,
-        "users",
-        userProfile.uid
-      );
-
-      let followingAction;
-      let followersAction;
-      let newIsFollowing;
-
-      if (isFollowing) {
-        followingAction = arrayRemove(userProfile.uid);
-        followersAction = arrayRemove(authUser.uid);
-        newIsFollowing = false;
-      } else {
-        followingAction = arrayUnion(userProfile.uid);
-        followersAction = arrayUnion(authUser.uid);
-        newIsFollowing = true;
-      }
-
-      await updateDoc(currentUserRef, { following: followingAction });
-      await updateDoc(userToFollowOrUnfollowRef, {
-        followers: followersAction,
-      });
-
-      setIsFollowing(newIsFollowing);
-      dispatch(
-        setUser({
-          ...authUser,
-          following: newIsFollowing
-            ? [...authUser.following, userProfile.uid]
-            : authUser.following.filter((uid) => uid !== userProfile.uid),
-        })
-      );
-      dispatch(
-        setUserProfile({
-          ...userProfile,
-          followers: newIsFollowing
-            ? [...userProfile.followers, authUser.uid]
-            : userProfile.followers.filter((uid) => uid !== authUser.uid),
-        })
-      );
-    } catch (error) {
-      console.error(error);
-    } finally {
-      dispatch(setIsUpdating(false));
-      console.log("Done following");
-    }
-  };
-
   const { fullname, bio, profilePicUrl, posts, followers, following, uid } =
-    userProfile;
+    userProfile || {};
   const postsCount = posts ? Object.keys(posts).length : 0;
   const followersCount = followers ? Object.keys(followers).length : 0;
   const followingCount = following ? Object.keys(following).length : 0;
@@ -158,10 +97,7 @@ const ProfileHeader = () => {
               <div className="items-center justify-center w-20 h-20 m-auto mr-4 sm:w-40 sm:h-40">
                 <img
                   alt="profil"
-                  src={
-                    profilePicUrl ||
-                    "https://via.placeholder.com/150"
-                  }
+                  src={profilePicUrl || "https://via.placeholder.com/150"}
                   className="object-cover w-20 h-20 mx-auto rounded-full sm:w-40 sm:h-40"
                 />
               </div>
@@ -181,37 +117,24 @@ const ProfileHeader = () => {
                       >
                         Edit profile
                       </button>
-
-                      <a
-                        className="p-1 ml-2 text-gray-700 border-transparent rounded-full cursor-pointfocus:outline-none focus:text-gray-600"
-                        aria-label="Notifications"
-                      >
-                        <svg
-                          className="w-4 h-4 sm:w-8 sm:h-8"
-                          fill="none"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="1.5"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                          <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      </a>
                     </>
                   ) : (
                     <button
-                    className="flex items-center text-sm font-semibold py-2 px-7 rounded-md bg-blue-500 text-white hover:bg-blue-600"
-                    disabled={isUpdating}
-                    onClick={handleFollowUser}
-                  >
-                    {isUpdating ? (
-                      <div className="loading-spinner flex item-center justify-center"></div>
-                    ) : (
-                      <>{isFollowing ? "Unfollow" : "Follow"}</>
+                      className={`flex items-center px-4 font-semibold ${
+                        isFollowing
+                          ? "bg-gray-200 hover:bg-gray-300 tex-black"
+                          : "bg-blue-500 text-white hover:bg-blue-600"
+                      } rounded-md`}
+                      style={{ padding: "0 16px", fontSize: "13px" }}
+                      disabled={isUpdating}
+                      onClick={followOrUnfollowUser}
+                    >
+                      {isUpdating ? (
+                        <div className="loading-spinner flex item-center justify-center"></div>
+                      ) : (
+                        <>{isFollowing ? "Unfollow" : "Follow"}</>
                       )}
-                  </button>
+                    </button>
                   )}
                 </div>
               </div>

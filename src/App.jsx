@@ -22,42 +22,40 @@ import { doc, getDoc } from "firebase/firestore";
 
 const App = () => {
   const user = useSelector(selectUser);
-  const loading = useSelector((state) => state.auth.isLoading);
+  const isLoading = useSelector((state) => state.auth.isLoading);
   const dispatch = useDispatch();
-
+  
   useEffect(() => {
     const unsubscribe = setupAuthListener();
-
     return () => unsubscribe();
-  }, []);
+  }, [dispatch]);
 
   const setupAuthListener = () => {
-    return onAuthStateChanged(auth, (userAuth) => {
+    return onAuthStateChanged(auth, async (userAuth) => {
       dispatch(setLoading(false));
-      
       if (userAuth) {
         const userDocRef = doc(firestore, "users", userAuth.uid);
-        getDoc(userDocRef).then((userDocSnap) => {
+        try {
+          const userDocSnap = await getDoc(userDocRef);
           if (userDocSnap.exists()) {
             const userData = userDocSnap.data();
             dispatch(setUser(userData));
           } else {
             console.log("User data not found in the database");
           }
-        }).catch((error) => {
+        } catch (error) {
           console.error("Error fetching user document:", error);
-        });
+        }
       } else {
-        dispatch(setUser(null)); 
+        dispatch(setUser(null));
       }
     });
   };
 
   const renderRoutes = () => {
-    if (loading) {
+    if (isLoading) {
       return <Loading />;
     }
-
     return (
       <Routes>
         <Route

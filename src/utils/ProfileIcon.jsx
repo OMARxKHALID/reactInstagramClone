@@ -7,11 +7,11 @@ const ProfileIcon = () => {
 
   return (
     <div>
-      <div className="rounded-full overflow-hidden mr-2">
+      <div className="rounded-full overflow-hidden ">
         <img
           src={currentUser.profilePicUrl}
           alt={currentUser.username}
-          className="h-7 w-7 rounded-full object-cover border-2 border-black"
+          className="h-6 w-6 rounded-full object-cover border-2 border-black"
         />
       </div>
     </div>

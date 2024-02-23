@@ -15,7 +15,7 @@ const HomePage = () => {
         </div>
         <div className="w-3/5 flex flex-col  xl:-mt-8 items-center">
           <Stories />
-          <Posts />
+          {/* <Posts /> */}
         </div>
         <div className="w-1/4 xl:-mt-8">
           <OtherSide />

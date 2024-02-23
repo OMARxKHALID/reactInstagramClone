@@ -8,7 +8,7 @@ const UserPosts = () => {
   ];
 
   return (
-    <div className="px-4 py-2 grid grid-cols-3 gap-2">
+    <div className="px-4 py-2 grid grid-cols-3 gap-2 pb-16">
       {images.map((imageUrl, index) => (
         <div key={index} className="relative">
           <img src={imageUrl} alt={`Image ${index}`} className="w-full h-full" />

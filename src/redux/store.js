@@ -26,7 +26,8 @@ store.subscribe(() => {
     auth: {
       user: auth.user,
       isAuthenticated: auth.isAuthenticated,
-      isLoading: auth.isLoading
+      isLoading: auth.isLoading,
+      isUpdating: auth.isUpdating
     },
     userProfile,
     posts 

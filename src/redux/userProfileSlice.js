@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { firestore } from "../firebase/Firebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
+
 const initialState = {
   userProfile: null,
   loading: false,
@@ -25,21 +26,36 @@ export const userProfileSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    clearError: (state) => {
+      state.error = null;
+    },
+    clearUserProfile: (state) => {
+      state.userProfile = null;
+    },
     setEditing: (state, action) => {
-      state.isEditing = action.payload;      
+      state.isEditing = action.payload;
     },
   },
 });
 
-export const { setLoading, setUserProfile, setError, setEditing } = userProfileSlice.actions;
+export const {
+  setLoading,
+  setUserProfile,
+  setError,
+  clearError,
+  clearUserProfile,
+  setEditing,
+} = userProfileSlice.actions;
 
 export const selectUserProfile = (state) => state.userProfile;
 
 export const fetchUserProfileByUsername = (username) => async (dispatch) => {
   dispatch(setLoading());
   try {
-    const querySnapshot = await getDocs(query(collection(firestore, "users"), where("username", "==", username)));
-    
+    const querySnapshot = await getDocs(
+      query(collection(firestore, "users"), where("username", "==", username))
+    );
+
     if (!querySnapshot.empty) {
       querySnapshot.forEach((doc) => {
         dispatch(setUserProfile(doc.data()));

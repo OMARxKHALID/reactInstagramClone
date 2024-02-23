@@ -82,6 +82,13 @@ export const loginUser =
             setError("Sorry, there is no user with this email. Please sign up.")
           );
           break;
+        case "auth/network-request-failed":
+          dispatch(
+            setError(
+              "Sorry, please check your internet connection and try again."
+            )
+          );
+          break;
         default:
           dispatch(setError("An error occurred. Please try again later."));
           break;
@@ -141,6 +148,13 @@ export const signupUser =
               "Sorry, this email is already in use. Please use a different email."
             )
           );
+        case "auth/network-request-failed":
+          dispatch(
+            setError(
+              "Sorry, please check your internet connection and try again."
+            )
+          );
+          break;
           break;
         default:
           dispatch(setError("An error occurred. Please try again later."));
@@ -155,6 +169,7 @@ export const selectUser = (state) => state.auth.user;
 export const selectLoading = (state) => state.auth.isLoading;
 export const selectError = (state) => state.auth.error;
 
-export const { setUser, setLoading, setError, logoutUser, setIsUpdating } = authSlice.actions;
+export const { setUser, setLoading, setError, logoutUser, setIsUpdating } =
+  authSlice.actions;
 
 export default authSlice.reducer;
