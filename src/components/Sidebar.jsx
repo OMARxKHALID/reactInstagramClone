@@ -17,13 +17,13 @@ import { selectUser } from "../redux/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import ProfileIcon from "../utils/ProfileIcon";
 import SearchUserModal from "../modal/SearchUserModal";
-import { clearError, clearUserProfile } from "../redux/userProfileSlice";
 import CreatePostModal from "../modal/CreatePostModal";
+import { clearError, clearUserProfile } from "../redux/userProfileSlice";
 
 const SideBar = () => {
   const [isMediumScreen, setIsMediumScreen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const location = useLocation();
   const loggedUser = useSelector(selectUser);
   const dispatch = useDispatch();
@@ -73,12 +73,6 @@ const SideBar = () => {
       IconFilled: ImSearch,
     },
     {
-      name: "Create",
-      route: "#",
-      IconLine: FiPlusSquare,
-      IconFilled: BsFillPlusSquareFill,
-    },
-    {
       name: "Notifications",
       route: "#",
       IconLine: FiHeart,
@@ -101,8 +95,12 @@ const SideBar = () => {
     }
   };
 
-  const toggleCreateModal = () => {
-    setIsCreateModalOpen(!isCreateModalOpen);
+  const togglePostModal = () => {
+    setIsPostModalOpen(!isPostModalOpen);
+
+    if (!isPostModalOpen) {
+      dispatch(clearError());
+    }
   };
 
   if (isMediumScreen) {
@@ -136,10 +134,12 @@ const SideBar = () => {
                     <div>{link.name}</div>
                   </button>
                 </Link>
-                
               );
             })}
-            <button onClick={toggleCreateModal} className="p-2 mr-3 rounded-md hover:bg-gray-200 w-full flex items-center space-x-4 mt-auto mb-4">
+            <button
+              onClick={togglePostModal}
+              className="p-2 mr-3 rounded-md hover:bg-gray-200 w-full flex items-center space-x-4 mt-auto mb-4"
+            >
               <FiPlusSquare size="25px" />
               <div>Create</div>
             </button>
@@ -147,7 +147,7 @@ const SideBar = () => {
         </div>
         <LogoutButton />
       </div>
-      {isCreateModalOpen && <CreatePostModal onClose={toggleCreateModal} />}
+      {isPostModalOpen && <CreatePostModal onClose={togglePostModal} />}
       {isSearchModalOpen && <SearchUserModal onClose={toggleSearchModal} />}
     </div>
   );

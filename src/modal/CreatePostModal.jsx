@@ -2,8 +2,21 @@ import React from "react";
 import useCreatePost from "../hooks/useCreatePost";
 
 const CreatePostModal = ({ onClose }) => {
-  const { caption, selectedImage, setCaption, handleImageChange, handleSubmit } =
-    useCreatePost(onClose);
+  const {
+    selectedFile,
+    isLoading,
+    handleImageUpload,
+    handleCreatePost,
+    caption,
+    setCaption,
+    error,
+    clearSelectedFile,
+  } = useCreatePost(onClose);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    handleCreatePost();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black bg-opacity-50">
@@ -29,6 +42,7 @@ const CreatePostModal = ({ onClose }) => {
         </button>
         <h2 className="text-2xl font-bold mb-4">Create Post</h2>
         <form onSubmit={handleSubmit}>
+          {error && <div className="text-red-500 mb-4">{error}</div>}
           <div className="mb-4">
             <label
               htmlFor="caption"
@@ -45,36 +59,30 @@ const CreatePostModal = ({ onClose }) => {
               onChange={(e) => setCaption(e.target.value)}
             />
           </div>
+
           <div className="mb-4">
             <label
               htmlFor="image"
-              className="block text-sm font-semibold text-gray-600"
-            ></label>
+              className="block text-sm font-semibold text-gray-600 mb-2"
+            >
+              Image
+            </label>
             <input
               type="file"
               id="image"
               className="hidden"
               accept="image/*"
-              onChange={handleImageChange}
+              onChange={handleImageUpload}
             />
             <label
               htmlFor="image"
-              className="w-full min-h-48 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200"
+              className="w-full min-h-48 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200 relative"
             >
-              {selectedImage ? (
-                <div className="relative">
-                  <img
-                    src={selectedImage}
-                    alt="Selected"
-                    className="w-full h-full object-cover rounded-md"
-                  />
-
+              {selectedFile ? (
+                <>
                   <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setSelectedImage(null);
-                    }}
                     className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+                    onClick={clearSelectedFile}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -91,7 +99,12 @@ const CreatePostModal = ({ onClose }) => {
                       />
                     </svg>
                   </button>
-                </div>
+                  <img
+                    src={selectedFile}
+                    alt="Selected"
+                    className="w-full h-full object-cover rounded-md"
+                  />
+                </>
               ) : (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -118,8 +131,13 @@ const CreatePostModal = ({ onClose }) => {
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none"
+            disabled={isLoading}
           >
-            Create Post
+            {isLoading ? (
+              <div className="loading-spinner flex item-center justify-center"></div>
+            ) : (
+              <>{"Post"}</>
+            )}{" "}
           </button>
         </form>
       </div>

@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { firestore } from "../firebase/Firebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
+import { firestore } from "../firebase/Firebase";
 
 const initialState = {
   userProfile: null,
@@ -35,6 +35,14 @@ export const userProfileSlice = createSlice({
     setEditing: (state, action) => {
       state.isEditing = action.payload;
     },
+    addPost: (state, action) => {
+      if (state.userProfile) {
+        state.userProfile = {
+          ...state.userProfile,
+          posts: [action.payload.id, ...(state.userProfile.posts || [])]
+        };
+      }
+    },
   },
 });
 
@@ -45,7 +53,10 @@ export const {
   clearError,
   clearUserProfile,
   setEditing,
+  addPost
 } = userProfileSlice.actions;
+
+export const selectError = (state) => state.userProfile.error;
 
 export const selectUserProfile = (state) => state.userProfile;
 

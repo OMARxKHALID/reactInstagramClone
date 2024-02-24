@@ -49,4 +49,3 @@ import {
   };
   
   export default useGetSuggestedUsers;
-  

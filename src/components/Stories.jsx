@@ -3,7 +3,7 @@ import Users from "../data/Users";
 
 const Stories = () => {
   return (
-    <div className="border-b-2 border-gray-100 max-w-xs sm:max-w-md md:max-w-lg lg:max-w-lg xl:max-w-xl mt-16 py-2 px-2 h-24 overflow-x-auto overflow-y-hidden no-scrollbar">
+    <div className="-z-10 border-b-2 border-gray-100 max-w-xs sm:max-w-md md:max-w-lg lg:max-w-lg xl:max-w-xl mt-16 py-2 px-2 h-24 overflow-x-auto overflow-y-hidden no-scrollbar">
       <div className="flex items-center">
         {Users.map((story, index) => (
           <div key={index} className="flex flex-col items-center mr-4">

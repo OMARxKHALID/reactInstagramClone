@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -7,6 +7,7 @@ import {
   fetchUserProfileByUsername,
   setError,
   clearUserProfile,
+  setEditing,
 } from "../redux/userProfileSlice";
 import { selectUser, setUser } from "../redux/authSlice";
 import { storage, firestore } from "../firebase/Firebase";
@@ -28,63 +29,88 @@ const ProfileHeader = () => {
   const isUpdating = useSelector((state) => state.auth.isUpdating);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  useEffect(() => {
+  const fetchProfile = useCallback(() => {
     dispatch(fetchUserProfileByUsername(username));
   }, [dispatch, username]);
 
-  const handleSaveProfile = async (updatedProfile) => {
-    try {
-      let imageUrl = userProfile.profilePicUrl;
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
-      if (selectedImage) {
-        const storageRef = ref(storage, `profilePics/${userProfile.uid}`);
-        await uploadString(storageRef, selectedImage, "data_url");
-        imageUrl = await getDownloadURL(
-          ref(storage, `profilePics/${userProfile.uid}`)
-        );
+  const handleSaveProfile = useCallback(
+    async (updatedProfile) => {
+      try {
+        let imageUrl = userProfile.profilePicUrl;
+
+        if (selectedImage) {
+          const storageRef = ref(storage, `profilePics/${userProfile.uid}`);
+          await uploadString(storageRef, selectedImage, "data_url");
+          imageUrl = await getDownloadURL(
+            ref(storage, `profilePics/${userProfile.uid}`)
+          );
+        }
+
+        const updatedUserProfile = {
+          ...updatedProfile,
+          profilePicUrl: imageUrl,
+        };
+
+        const userDocRef = doc(firestore, "users", userProfile.uid);
+        await updateDoc(userDocRef, updatedUserProfile);
+
+        dispatch(setUserProfile(updatedUserProfile));
+        dispatch(setUser(updatedUserProfile));
+        dispatch(setEditing(!isEditing));
+      } catch (error) {
+        console.error("Error while updating profile:", error);
+        dispatch(setError(error.message));
       }
+    },
+    [dispatch, isEditing, selectedImage, userProfile]
+  );
 
-      const updatedUserProfile = { ...updatedProfile, profilePicUrl: imageUrl };
-
-      const userDocRef = doc(firestore, "users", userProfile.uid);
-      await updateDoc(userDocRef, updatedUserProfile);
-
-      dispatch(setUserProfile(updatedUserProfile));
-      dispatch(setUser(updatedUserProfile));
-      dispatch(setEditing(!isEditing));
-    } catch (error) {
-      console.error("Error while updating profile:", error);
-      dispatch(setError(error.message));
-    }
-  };
-
-  const toggleEditModal = () => {
+  const toggleEditModal = useCallback(() => {
     dispatch(setEditing(!isEditing));
-  };
+  }, [dispatch, isEditing]);
 
-  const handleImageChange = (imageDataUrl) => {
+  const handleImageChange = useCallback((imageDataUrl) => {
     setSelectedImage(imageDataUrl);
-  };
+  }, []);
 
   useEffect(() => {
     if (error || userProfile === null) {
       dispatch(clearUserProfile());
-      dispatch(fetchUserProfileByUsername(username));
+      fetchProfile();
     }
-  }, [dispatch, error, userProfile, username]);
+  }, [dispatch, error, fetchProfile, userProfile]);
 
-  if (error) {
-    dispatch(setError(error));
-    navigate("/");
-    return null;
-  }
+  useEffect(() => {
+    if (error) {
+      dispatch(setError(error));
+      navigate("/");
+    }
+  }, [dispatch, error, navigate]);
 
-  const { fullname, bio, profilePicUrl, posts, followers, following, uid } =
-    userProfile || {};
-  const postsCount = posts ? Object.keys(posts).length : 0;
-  const followersCount = followers ? Object.keys(followers).length : 0;
-  const followingCount = following ? Object.keys(following).length : 0;
-  const isOwner = authUser && authUser.uid === uid;
+  const { fullname, bio, profilePicUrl, posts, followers, following } = useMemo(
+    () => userProfile || {},
+    [userProfile]
+  );
+  const postsCount = useMemo(
+    () => (posts ? Object.keys(posts).length : 0),
+    [posts]
+  );
+  const followersCount = useMemo(
+    () => (followers ? Object.keys(followers).length : 0),
+    [followers]
+  );
+  const followingCount = useMemo(
+    () => (following ? Object.keys(following).length : 0),
+    [following]
+  );
+  const isOwner = useMemo(
+    () => authUser && authUser.uid === userProfile?.uid,
+    [authUser, userProfile]
+  );
 
   return (
     <header className="w-full">

@@ -27,23 +27,45 @@ const SearchUserModal = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="absolute inset-0 bg-black opacity-50"></div>
-      <div className="bg-white p-6 rounded-lg shadow-xl z-50 w-full max-w-md">
-        <h2 className="text-lg font-semibold mb-4">Search User</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black bg-opacity-50">
+      <div className="relative bg-white rounded-lg w-full max-w-md mx-auto p-6">
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+        <h2 className="text-2xl font-bold mb-4">Search User</h2>
         <div className="flex items-center mb-4">
           <input
             type="text"
             placeholder="Enter username"
             value={searchUsername}
             onChange={(e) => setSearchUsername(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500"
+            className="w-full border border-gray-300 rounded px-3 py-1 focus:outline-none focus:border-blue-500"
           />
           <button
             onClick={handleSearch}
-            className="ml-2 px-4 py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+            className="ml-2 px-4 py-1 bg-blue-500 text-white text-center font-semibold rounded hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
           >
-            Search
+            {searching ? (
+              <div className="loading-spinner flex item-center justify-center"></div>
+            ) : (
+              "Search"
+            )}
           </button>
         </div>
         {userProfile && !searching && (
@@ -85,12 +107,6 @@ const SearchUserModal = ({ onClose }) => {
         {error && !searching && (
           <p className="text-center text-red-500">{error}</p>
         )}
-        <button
-          onClick={onClose}
-          className="mt-4 px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
-        >
-          Close
-        </button>
       </div>
     </div>
   );

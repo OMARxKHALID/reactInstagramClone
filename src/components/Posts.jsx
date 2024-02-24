@@ -4,7 +4,7 @@ import postsData from '../data/Data';
 
 const Posts = () => {
     return (
-        <div className="pb-16">
+        <div className="pb-16 -z-10">
             {postsData.map((post, index) => (
                 <Post key={index} post={post} />
             ))}

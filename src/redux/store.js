@@ -17,6 +17,10 @@ const preloadedState = localStorage.getItem('reduxState')
 export const store = configureStore({
   reducer: rootReducer,
   preloadedState: preloadedState,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
 
 store.subscribe(() => {

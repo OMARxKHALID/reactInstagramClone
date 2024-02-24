@@ -50,13 +50,31 @@ const EditProfileModal = ({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="absolute inset-0 bg-black opacity-50"></div>
-      <div className="bg-white p-6 rounded-lg shadow-xl z-50 w-full max-w-md">
-        <h2 className="text-lg font-semibold mb-4">Edit Profile</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="relative w-20 h-20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black bg-opacity-50">
+      <div className="relative bg-white rounded-lg w-full max-w-md mx-auto p-6">
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+        <h2 className="text-2xl font-bold mb-4">Edit Profile</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4 flex items-center justify-center">
+            <div className="relative w-20 h-20 mr-auto">
               <img
                 className="w-full h-full object-cover rounded-full border-2 border-pink-300"
                 src={
@@ -83,9 +101,11 @@ const EditProfileModal = ({
               Change Image
             </button>
           </div>
-
-          <div>
-            <label htmlFor="username" className="block mb-1">
+          <div className="mb-4">
+            <label
+              htmlFor="username"
+              className="block text-sm font-semibold text-gray-600"
+            >
               Username
             </label>
             <input
@@ -94,11 +114,14 @@ const EditProfileModal = ({
               name="username"
               value={updatedProfile.username}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500"
+              className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:border-blue-500"
             />
           </div>
-          <div>
-            <label htmlFor="fullname" className="block mb-1">
+          <div className="mb-4">
+            <label
+              htmlFor="fullname"
+              className="block text-sm font-semibold text-gray-600"
+            >
               Full Name
             </label>
             <input
@@ -107,11 +130,14 @@ const EditProfileModal = ({
               name="fullname"
               value={updatedProfile.fullname}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500"
+              className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:border-blue-500"
             />
           </div>
-          <div>
-            <label htmlFor="bio" className="block mb-1">
+          <div className="mb-4">
+            <label
+              htmlFor="bio"
+              className="block text-sm font-semibold text-gray-600"
+            >
               Bio
             </label>
             <textarea
@@ -119,20 +145,13 @@ const EditProfileModal = ({
               name="bio"
               value={updatedProfile.bio}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500"
+              className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:border-blue-500"
             ></textarea>
           </div>
-          <div className="flex justify-end space-x-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
-            >
-              Cancel
-            </button>
+          <div className="flex justify-end">
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+              className="px-4 py-2 w-full bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
             >
               Save
             </button>
