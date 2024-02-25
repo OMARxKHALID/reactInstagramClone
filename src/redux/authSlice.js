@@ -148,13 +148,13 @@ export const signupUser =
               "Sorry, this email is already in use. Please use a different email."
             )
           );
+          break;
         case "auth/network-request-failed":
           dispatch(
             setError(
               "Sorry, please check your internet connection and try again."
             )
           );
-          break;
           break;
         default:
           dispatch(setError("An error occurred. Please try again later."));

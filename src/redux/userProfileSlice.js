@@ -39,7 +39,17 @@ export const userProfileSlice = createSlice({
       if (state.userProfile) {
         state.userProfile = {
           ...state.userProfile,
-          posts: [action.payload.id, ...(state.userProfile.posts || [])]
+          posts: [action.payload.id, ...(state.userProfile.posts || [])],
+        };
+      }
+    },
+    deleteUserPost: (state, action) => {
+      if (state.userProfile) {
+        state.userProfile = {
+          ...state.userProfile,
+          posts: state.userProfile.posts.filter(
+            (postId) => postId !== action.payload
+          ),
         };
       }
     },
@@ -53,7 +63,8 @@ export const {
   clearError,
   clearUserProfile,
   setEditing,
-  addPost
+  addPost,
+  deleteUserPost
 } = userProfileSlice.actions;
 
 export const selectError = (state) => state.userProfile.error;

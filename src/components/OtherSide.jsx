@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { auth } from "../firebase/Firebase";
 import { Link } from "react-router-dom";
@@ -17,7 +17,7 @@ const SuggestedUser = ({ user }) => {
         </div>
         <div className="flex flex-col">
           <span className="text-sm font-semibold">{user.username}</span>
-          <span className="text-xs text-gray-400">Suggestions For You</span>
+          <span className="text-xs text-gray-400">suggested user</span>
         </div>
       </div>
       <button
@@ -33,6 +33,22 @@ const SuggestedUser = ({ user }) => {
 const OtherSide = () => {
   const currentUser = useSelector((state) => state.auth.user);
   const { isLoading, suggestedUsers } = useGetSuggestedUsers();
+  const [isMediumScreen, setIsMediumScreen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMediumScreen(window.matchMedia("(max-width: 1100px)").matches);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  if (isMediumScreen) return null;
 
   return (
     <div

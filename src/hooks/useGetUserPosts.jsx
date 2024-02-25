@@ -32,7 +32,7 @@ export const useGetUserPosts = () => {
           postsData.push({ ...doc.data(), id: doc.id });
         });
 
-        postsData.sort((a, b) => a.createdBy - b.createdBy);
+        postsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         dispatch(setPosts(postsData));
       } catch (error) {
         dispatch(setError(error.message));

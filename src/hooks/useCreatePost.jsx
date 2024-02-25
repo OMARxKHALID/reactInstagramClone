@@ -4,23 +4,28 @@ import {
   addPost,
   setError,
   selectError,
+  deleteUserPost
 } from "../redux/userProfileSlice";
 import { storage, firestore } from "../firebase/Firebase";
-import { ref, uploadString, getDownloadURL } from "firebase/storage";
+import { ref, uploadString, getDownloadURL, deleteObject } from "firebase/storage";
 import {
   addDoc,
+  arrayRemove,
   arrayUnion,
   collection,
+  deleteDoc,
   doc,
   updateDoc,
 } from "firebase/firestore";
 import { selectUser } from "../redux/authSlice";
 import { useLocation } from "react-router-dom";
+import { deletePost } from "../redux/postsSlice";
 
 const useCreatePost = (onClose) => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [caption, setCaption] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
   const authUser = useSelector(selectUser);
   const error = useSelector(selectError);
   const dispatch = useDispatch();
@@ -28,7 +33,7 @@ const useCreatePost = (onClose) => {
 
   const handleCreatePost = async () => {
     setIsLoading(true);
-        
+
     try {
       if (!selectedFile || !caption.trim()) {
         if (!selectedFile && !caption.trim()) {
@@ -45,7 +50,7 @@ const useCreatePost = (onClose) => {
         caption: caption,
         likes: [],
         comments: [],
-        createdAt: Date.now(),
+        createdAt: new Date(),
         createdBy: authUser.uid,
       };
 
@@ -70,6 +75,30 @@ const useCreatePost = (onClose) => {
       dispatch(setError(error.message));
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeletePost = async (post, onClose) => {
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+    if (isDeleting) return;
+    try {
+      setIsDeleting(true);
+
+      const imageRef = ref(storage, `posts/${post.id}`);
+      await deleteObject(imageRef);
+      const userRef = doc(firestore, "users", authUser.uid);
+      await deleteDoc(doc(firestore, "posts", post.id));
+
+      await updateDoc(userRef, { posts: arrayRemove(post.id) });
+
+      dispatch(deletePost(post.id));
+      dispatch(deleteUserPost(post.id));
+      onClose();
+
+    } catch (error) {
+      dispatch(setError(error.message));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -105,10 +134,12 @@ const useCreatePost = (onClose) => {
     isLoading,
     handleImageUpload,
     handleCreatePost,
+    handleDeletePost,
     caption,
     setCaption,
     error,
     clearSelectedFile,
+    isDeleting,
   };
 };
 
