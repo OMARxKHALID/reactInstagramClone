@@ -18,7 +18,6 @@ const useGetUserProfileByUserId = (userId) => {
                 if (userRef.exists()) {
                     const user = userRef.data();
                     setUserProfile(user);
-                    console.log("fetched user", user);
                 }
             } catch (error) {
                 console.log(error);

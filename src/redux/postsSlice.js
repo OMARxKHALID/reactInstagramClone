@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   posts: [],
   comments: [],
+  likes: [],
   isLoading: false,
   error: null,
 };
@@ -34,6 +35,36 @@ const postsSlice = createSlice({
           : post
       );
     },
+    removeComment(state, action) {
+      const { postId, comment } = action.payload;
+      state.posts = state.posts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              comments: post.comments.filter(
+                (c) => c.createdBy !== comment.createdBy
+              ),
+            }
+          : post
+      );
+    },
+    addLike(state, action) {
+      const { postId, like } = action.payload;
+      state.posts = state.posts.map((post) =>
+        post.id === postId ? { ...post, likes: [...post.likes, like] } : post
+      );
+    },
+    removeLike(state, action) {
+      const { postId, like } = action.payload;
+      state.posts = state.posts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              likes: post.likes.filter((l) => l.likedBy !== like.likedBy),
+            }
+          : post
+      );
+    },
   },
 });
 
@@ -44,5 +75,8 @@ export const {
   deletePost,
   setError,
   createPost,
+  addLike,
+  removeLike,
+  removeComment,
 } = postsSlice.actions;
 export default postsSlice.reducer;

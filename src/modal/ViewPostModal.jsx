@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { FaRegBookmark, FaBookmark } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
@@ -11,30 +11,32 @@ import ShowComments from "../utils/ShowComments";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUser } from "../redux/authSlice";
 import { addComment } from "../redux/postsSlice";
+import useLikeAndUnlikePost from "../hooks/useLikeAndUnlikePost";
 
 const ViewPostModal = ({ post, onClose }) => {
-    const { id, createdAt, caption, imageUrl, likes } = post;
+    const { id, createdAt, caption, imageUrl } = post;
 
     const { isDeleting, handleDeletePost } = useCreatePost();
-    const { isCommenting, handleCommentPost } = useCommentPost();
+    const { isCommenting, isDeletingComment, handleCommentPost, HandleDeleteComment } = useCommentPost();
+    const { isLiking, handleLikePost, handleUnlikePost } = useLikeAndUnlikePost();
     const { isLoading, userProfile } = useGetUserProfileByUserId(post.createdBy);
 
-    const [liked, setLiked] = useState(false);
-    const [likesCount, setLikesCount] = useState(likes.length);
-    const [bookmarked, setBookmarked] = useState(false);
     const [newComment, setNewComment] = useState("");
+    const [bookmarked, setBookmarked] = useState(false);
+
     const authUser = useSelector(selectUser);
     const dispatch = useDispatch();
 
     const comments = useSelector((state) => state.posts.posts.find((p) => p.id === id)?.comments) || [];
-
-    useEffect(() => {
-        setLikesCount(likes.length);
-    }, [likes]);
+    const likes = useSelector((state) => state.posts.posts.find((p) => p.id === id)?.likes) || [];
+    const isLikedByUser = likes.some(like => like.likedBy === authUser?.uid);
 
     const handleLikeToggle = () => {
-        setLiked(!liked);
-        setLikesCount((prevCount) => (liked ? prevCount - 1 : prevCount + 1));
+        if (isLikedByUser) {
+            handleUnlikePost(id, authUser);
+        } else {
+            handleLikePost(id, authUser);
+        }
     };
 
     const handleBookmarkToggle = () => {
@@ -42,22 +44,26 @@ const ViewPostModal = ({ post, onClose }) => {
     };
 
     const handleCommentAdd = () => {
-        if (!authUser) {
-            console.log("Only authenticated users can add comments.");
-            return;
-        }
-        if (!newComment.trim()) {
-            console.log("Comment cannot be empty.");
-            return;
-        }
-        handleCommentPost(id, newComment);
-        setNewComment("");
-        dispatch(addComment({ postId: id, comment: { comment: newComment, createdBy: authUser.uid, createdAt: new Date(), postId: id } }));
-    };
+    if (!authUser) {
+        console.log("Only authenticated users can add comments."); // dispatch these errors in post slice also you can show them on the UI
+        return;
+    }
+    if (!newComment.trim()) {
+        console.log("Comment cannot be empty.");
+        return;
+    }
+    if (isCommenting) {
+        console.log("Comment is being posted. Please wait.");
+        return;
+    }
+    handleCommentPost(id, newComment);
+    setNewComment("");
+    // addComment({ postId: id, comment: { comment: newComment, createdBy: authUser.uid, createdAt: new Date(), postId: id } });
+};
 
     return (
         <div className="fixed inset-0 flex gap-2 px-4 md:px-10 lg:px-28 xl:px-28 justify-center items-center bg-black bg-opacity-50">
-            <div className="bg-white w-full max-w-screen-lg mx-auto rounded-lg overflow-auto max-h-[80vh]">
+            <div className="bg-white w-full max-w-screen-lg mx-auto rounded-lg overflow-auto max-h-[89vh]">
                 <div className="grid grid-cols-1 md:grid-cols-2">
                     <div className="relative h-[370px] md:h-[440px] lg:h-[460px] xl:h-[500px] border-r-2 shadow-md">
                         <img
@@ -97,13 +103,15 @@ const ViewPostModal = ({ post, onClose }) => {
                                 comments={comments}
                                 userProfile={userProfile}
                                 authUser={authUser}
+                                handleDeleteComment={HandleDeleteComment}
+                                isDeletingComment={isDeletingComment}
                             />
                         </div>
                         <div className="border-t p-1">
                             <div className="flex justify-between mt-auto">
                                 <div className="flex items-center space-x-2">
-                                    <button onClick={handleLikeToggle}>
-                                        {liked ? (
+                                    <button onClick={handleLikeToggle} disabled={isLiking}>
+                                        {isLikedByUser ? (
                                             <AiFillHeart className="text-red-500 hover:text-red-600" size="1.8rem" />
                                         ) : (
                                             <AiOutlineHeart size="1.8rem" className="text-black" />
@@ -128,7 +136,7 @@ const ViewPostModal = ({ post, onClose }) => {
                                     )}
                                 </button>
                             </div>
-                            <div className="font-semibold m-1">{likesCount} likes</div>
+                            <div className="font-semibold m-1">{likes.length} likes</div>
                             <span className="text-sm ml-1 -m-1 text-gray-500 block">{durationSinceCreated(createdAt)}</span>
                             {authUser && (
                                 <div className="flex items-center mt-2">
@@ -139,7 +147,7 @@ const ViewPostModal = ({ post, onClose }) => {
                                         placeholder="Add a comment..."
                                         className="border-gray-400 rounded-md px-2 py-1 flex-grow focus:outline-none"
                                     />
-                                    <button onClick={handleCommentAdd} className="ml-2 px-2 font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">
+                                    <button onClick={handleCommentAdd} disabled={isCommenting} className="ml-2 px-2 font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">
                                         {isCommenting ? (
                                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
                                         ) : (
