@@ -20,9 +20,9 @@ const UserPosts = () => {
       {isLoading ? (
         <LoadingSpinner />
       ) : posts.length === 0 ? (
-        <div className="flex justify-center items-center px-4 py-2 text-gray-500 text-lg">No posts found.</div>
+        <div className="flex justify-center items-center px-4 py-2 text-gray-500 text-lg -z-20">No posts found.</div>
       ) : (
-        <div className="-z-10 lg:px-28 xl:px-28 md:px-14 px-4 py-2 grid grid-cols-3 gap-2 pb-16 ">
+        <div className="-z-20 lg:px-28 xl:px-28 md:px-14 px-4 py-2 grid grid-cols-3 gap-2 pb-16 ">
           {posts.map((post) => (
             <div key={post.id} className=" bg-zinc-50 rounded-lg">
               <img

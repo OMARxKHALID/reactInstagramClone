@@ -23,7 +23,7 @@ const Header = () => {
   }, []);
 
   return isMobile ? (
-    <header className="bg-white shadow-md fixed top-0 left-0 right-0 z-10">
+    <header className="bg-white shadow-md fixed top-0 left-0 right-0 -z-0">
       <div className="container mx-auto flex items-center justify-between py-4 px-6">
         <Link to={"/"} className="flex items-center">
           <FiInstagram
