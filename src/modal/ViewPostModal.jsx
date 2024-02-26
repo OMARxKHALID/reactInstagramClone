@@ -57,7 +57,7 @@ const ViewPostModal = ({ post, onClose }) => {
 
     return (
         <div className="fixed inset-0 flex gap-2 px-4 md:px-10 lg:px-28 xl:px-28 justify-center items-center bg-black bg-opacity-50">
-            <div className="bg-white w-h max-w-screen-lg mx-auto rounded-lg overflow-hidden">
+            <div className="bg-white w-full max-w-screen-lg mx-auto rounded-lg overflow-auto max-h-[80vh]">
                 <div className="grid grid-cols-1 md:grid-cols-2">
                     <div className="relative h-[370px] md:h-[440px] lg:h-[460px] xl:h-[500px] border-r-2 shadow-md">
                         <img
