@@ -62,7 +62,7 @@ const SearchUserModal = ({ onClose }) => {
             className="ml-2 px-4 py-1 bg-blue-500 text-white text-center font-semibold rounded hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
           >
             {searching ? (
-              <div className="loading-spinner flex item-center justify-center"></div>
+              <div className="animate-spin rounded-full h-4 w-4 mx-4 my-1 border-b-2 "></div>
             ) : (
               "Search"
             )}

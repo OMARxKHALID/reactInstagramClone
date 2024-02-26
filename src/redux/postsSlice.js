@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   posts: [],
+  comments: [],
   isLoading: false,
   error: null,
 };
@@ -26,15 +27,22 @@ const postsSlice = createSlice({
       state.posts = state.posts.filter((post) => post.id !== action.payload);
     },
     addComment(state, action) {
+      const { postId, comment } = action.payload;
       state.posts = state.posts.map((post) =>
-        post.id === action.payload.id
-          ? { ...post, comments: [...post.comments, action.payload.comment] }
+        post.id === postId
+          ? { ...post, comments: [...post.comments, comment] }
           : post
       );
     },
   },
 });
 
-export const { setPosts, addComment, setIsLoading, deletePost, setError, createPost } =
-  postsSlice.actions;
+export const {
+  setPosts,
+  addComment,
+  setIsLoading,
+  deletePost,
+  setError,
+  createPost,
+} = postsSlice.actions;
 export default postsSlice.reducer;

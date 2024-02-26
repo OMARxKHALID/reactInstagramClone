@@ -11,15 +11,17 @@ const SuggestedUser = ({ user }) => {
 
   return (
     <div className="mt-4 flex w-full justify-between items-center">
-      <div className="flex flex-row items-center pl-2">
-        <div className="h-10 w-10 rounded-full object-cover border-2 border-pink-500 overflow-hidden mr-2">
-          <img alt={user.username} src={user.profilePicUrl} />
-        </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-semibold">{user.username}</span>
-          <span className="text-xs text-gray-400">suggested user</span>
-        </div>
-      </div>
+      <Link to={`/user/${user.username}`}>
+          <div className="flex flex-row items-center pl-2">
+            <div className="h-10 w-10 rounded-full object-cover border-2 border-pink-500 overflow-hidden mr-2">
+              <img alt={user.username} src={user.profilePicUrl} />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold">{user.username}</span>
+              <span className="text-xs text-gray-400">suggested user</span>
+            </div>
+          </div>
+      </Link>
       <button
         onClick={followOrUnfollowUser}
         className="text-sm font-semibold text-blue-600"
@@ -72,10 +74,11 @@ const OtherSide = () => {
             className="text-sm font-semibold"
           >
             {currentUser.username}
+            <span className="text-sm -mt-1 text-gray-500 block">
+              {currentUser.fullname}
+            </span>
           </Link>
-          <span className="text-sm -mt-1 text-gray-500 block">
-            {currentUser.fullname}
-          </span>
+
         </div>
         <div className="flex flex-col ml-auto">
           <button

@@ -5,37 +5,36 @@ import { MdDelete } from "react-icons/md";
 import { durationSinceCreated } from "../utils/Dsc";
 import useCreatePost from "../hooks/useCreatePost";
 import MiniProfile from "../utils/MiniProfile";
-import { useSelector } from "react-redux";
-import { selectUserProfile } from "../redux/userProfileSlice";
 import useCommentPost from "../hooks/useCommentPost";
+import useGetUserProfileByUserId from "../hooks/useGetUserProfileByUserId";
+import ShowComments from "../utils/ShowComments";
+import { useSelector, useDispatch } from "react-redux";
+import { selectUser } from "../redux/authSlice";
+import { addComment } from "../redux/postsSlice";
 
 const ViewPostModal = ({ post, onClose }) => {
-    const { id, createdAt, caption, comments: prevComments, imageUrl, likes } = post;
+    const { id, createdAt, caption, imageUrl, likes } = post;
 
     const { isDeleting, handleDeletePost } = useCreatePost();
     const { isCommenting, handleCommentPost } = useCommentPost();
+    const { isLoading, userProfile } = useGetUserProfileByUserId(post.createdBy);
 
     const [liked, setLiked] = useState(false);
     const [likesCount, setLikesCount] = useState(likes.length);
     const [bookmarked, setBookmarked] = useState(false);
-    const [comments, setComments] = useState(prevComments.slice(0, 5)); 
     const [newComment, setNewComment] = useState("");
-    const [showAllComments, setShowAllComments] = useState(false);
+    const authUser = useSelector(selectUser);
+    const dispatch = useDispatch();
 
-    const currentUser = useSelector(selectUserProfile);
-
-    useEffect(() => {
-        setComments(prevComments.slice(0, 5)); 
-    }, [prevComments]);
+    const comments = useSelector((state) => state.posts.posts.find((p) => p.id === id)?.comments) || [];
 
     useEffect(() => {
-        const updatedComments = showAllComments ? prevComments : prevComments.slice(0, 5);
-        setComments(updatedComments);
-    }, [prevComments, showAllComments]);
+        setLikesCount(likes.length);
+    }, [likes]);
 
     const handleLikeToggle = () => {
         setLiked(!liked);
-        setLikesCount(prevCount => liked ? prevCount - 1 : prevCount + 1);
+        setLikesCount((prevCount) => (liked ? prevCount - 1 : prevCount + 1));
     };
 
     const handleBookmarkToggle = () => {
@@ -43,13 +42,17 @@ const ViewPostModal = ({ post, onClose }) => {
     };
 
     const handleCommentAdd = () => {
+        if (!authUser) {
+            console.log("Only authenticated users can add comments.");
+            return;
+        }
+        if (!newComment.trim()) {
+            console.log("Comment cannot be empty.");
+            return;
+        }
         handleCommentPost(id, newComment);
-        setComments([...comments, { comment: newComment, createdBy: currentUser?.userProfile?.uid }]);
         setNewComment("");
-    };
-
-    const handleViewAllComments = () => {
-        setShowAllComments(true);
+        dispatch(addComment({ postId: id, comment: { comment: newComment, createdBy: authUser.uid, createdAt: new Date(), postId: id } }));
     };
 
     return (
@@ -66,7 +69,11 @@ const ViewPostModal = ({ post, onClose }) => {
                     <div className="p-4 flex flex-col justify-between">
                         <div>
                             <div className="mb-2 flex justify-between items-center">
-                                <MiniProfile currentUser={currentUser.userProfile} />
+                                {isLoading ? (
+                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+                                ) : (
+                                    <MiniProfile userProfile={userProfile} />
+                                )}
                                 <div className="flex space-x-2">
                                     <button onClick={() => handleDeletePost(post, onClose)} className="text-gray-500 hover:text-gray-700 focus:outline-none">
                                         {isDeleting ? (
@@ -83,21 +90,14 @@ const ViewPostModal = ({ post, onClose }) => {
                                 </div>
                             </div>
                             <div className="p-1 border-t">
-                                <span className="font-semibold">{currentUser?.userProfile?.username}</span>
-                                <span className="text-sm ml-1">{""}{caption}</span>
+                                <span className="font-semibold">{userProfile?.username}</span>
+                                <span className="text-sm mt-1 ml-1">{caption}</span>
                             </div>
-                            <div className="p-1 h-14 md:h-64 xl:h-64 lg:h-64 no-scrollbar overflow-y-auto">
-                                {comments.map((comment, index) => (
-                                    <div key={index} className="mb-1">
-                                        {comment.comment}
-                                    </div>
-                                ))}
-                                {!showAllComments && prevComments.length > 5 && (
-                                    <button onClick={handleViewAllComments} className="text-gray-400 font-semibold focus:outline-none">View all comments</button>
-                                )}
-                            </div>
-
-
+                            <ShowComments
+                                comments={comments}
+                                userProfile={userProfile}
+                                authUser={authUser}
+                            />
                         </div>
                         <div className="border-t p-1">
                             <div className="flex justify-between mt-auto">
@@ -130,22 +130,24 @@ const ViewPostModal = ({ post, onClose }) => {
                             </div>
                             <div className="font-semibold m-1">{likesCount} likes</div>
                             <span className="text-sm ml-1 -m-1 text-gray-500 block">{durationSinceCreated(createdAt)}</span>
-                            <div className="flex items-center mt-2">
-                                <input
-                                    type="text"
-                                    value={newComment}
-                                    onChange={(e) => setNewComment(e.target.value)}
-                                    placeholder="Add a comment..."
-                                    className="border-gray-400 rounded-md px-2 py-1 flex-grow focus:outline-none"
-                                />
-                                <button onClick={handleCommentAdd} className="ml-2 px-2 font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">
-                                    {isCommenting ? (
-                                        <div className="loading-spinner flex item-center  justify-center"></div>
-                                    ) : (
-                                        "Post" // will fix loading spinner
-                                    )}
-                                </button>
-                            </div>
+                            {authUser && (
+                                <div className="flex items-center mt-2">
+                                    <input
+                                        type="text"
+                                        value={newComment}
+                                        onChange={(e) => setNewComment(e.target.value)}
+                                        placeholder="Add a comment..."
+                                        className="border-gray-400 rounded-md px-2 py-1 flex-grow focus:outline-none"
+                                    />
+                                    <button onClick={handleCommentAdd} className="ml-2 px-2 font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">
+                                        {isCommenting ? (
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+                                        ) : (
+                                            "Post"
+                                        )}
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
