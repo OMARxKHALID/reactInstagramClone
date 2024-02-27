@@ -6,6 +6,7 @@ const initialState = {
   likes: [],
   isLoading: false,
   error: null,
+  feedPosts: [], // this is for the feed
 };
 
 const postsSlice = createSlice({
@@ -15,6 +16,9 @@ const postsSlice = createSlice({
     setPosts(state, action) {
       state.posts = action.payload;
     },
+    setFeedPosts(state, action) {
+      state.feedPosts = action.payload;
+    },
     setIsLoading(state, action) {
       state.isLoading = action.payload;
     },
@@ -23,13 +27,20 @@ const postsSlice = createSlice({
     },
     createPost(state, action) {
       state.posts = [action.payload, ...state.posts];
+      state.feedPosts = [action.payload, ...state.feedPosts]; 
     },
     deletePost(state, action) {
       state.posts = state.posts.filter((post) => post.id !== action.payload);
+      state.feedPosts = state.feedPosts.filter((post) => post.id !== action.payload); 
     },
     addComment(state, action) {
       const { postId, comment } = action.payload;
       state.posts = state.posts.map((post) =>
+        post.id === postId
+          ? { ...post, comments: [...post.comments, comment] }
+          : post
+      );
+      state.feedPosts = state.feedPosts.map((post) =>
         post.id === postId
           ? { ...post, comments: [...post.comments, comment] }
           : post
@@ -41,9 +52,15 @@ const postsSlice = createSlice({
         post.id === postId
           ? {
               ...post,
-              comments: post.comments.filter(
-                (c) => c.createdBy !== comment.createdBy
-              ),
+              comments: post.comments.filter((c) => c.id !== comment.id),
+            }
+          : post
+      );
+      state.feedPosts = state.feedPosts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              comments: post.comments.filter((c) => c.id !== comment.id),
             }
           : post
       );
@@ -51,6 +68,9 @@ const postsSlice = createSlice({
     addLike(state, action) {
       const { postId, like } = action.payload;
       state.posts = state.posts.map((post) =>
+        post.id === postId ? { ...post, likes: [...post.likes, like] } : post
+      );
+      state.feedPosts = state.feedPosts.map((post) =>
         post.id === postId ? { ...post, likes: [...post.likes, like] } : post
       );
     },
@@ -64,12 +84,21 @@ const postsSlice = createSlice({
             }
           : post
       );
+      state.feedPosts = state.feedPosts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              likes: post.likes.filter((l) => l.likedBy !== like.likedBy),
+            }
+          : post
+      );
     },
   },
 });
 
 export const {
   setPosts,
+  setFeedPosts,
   addComment,
   setIsLoading,
   deletePost,

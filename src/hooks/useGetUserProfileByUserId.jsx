@@ -20,7 +20,6 @@ const useGetUserProfileByUserId = (userId) => {
                     setUserProfile(user);
                 }
             } catch (error) {
-                console.log(error);
                 dispatch(setError(error.message));
             } finally {
                 setIsLoading(false);
@@ -30,7 +29,7 @@ const useGetUserProfileByUserId = (userId) => {
         getUserProfile(); 
     }, [dispatch,setUserProfile, userId]);
 
-    return { userProfile,isLoading };
+    return { userProfile, isLoading };
 };
 
 export default useGetUserProfileByUserId;

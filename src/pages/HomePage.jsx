@@ -14,7 +14,7 @@ const HomePage = () => {
           <SideBar />
         </div>
         <div className="w-3/5 flex flex-col  xl:-mt-8 items-center">
-          <Stories />
+          {/* <Stories /> */}
           <Posts />
         </div>
         <div className="w-1/4 xl:-mt-8">

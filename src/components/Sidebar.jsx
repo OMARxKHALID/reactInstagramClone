@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlineHome, AiFillHome, AiOutlineSearch } from "react-icons/ai";
 import { ImSearch } from "react-icons/im";
-import { BsFillPlusSquareFill } from "react-icons/bs";
 import { FiPlusSquare } from "react-icons/fi";
 import { FiHeart } from "react-icons/fi";
 import {
@@ -26,7 +25,9 @@ const SideBar = () => {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const location = useLocation();
   const loggedUser = useSelector(selectUser);
+  const userProfile = useSelector((state) => state.userProfile.userProfile);
   const dispatch = useDispatch();
+  const { pathname } = useLocation();
 
   useEffect(() => {
     const handleResize = () => {
@@ -94,7 +95,6 @@ const SideBar = () => {
       dispatch(clearUserProfile());
     }
   };
-
   const togglePostModal = () => {
     setIsPostModalOpen(!isPostModalOpen);
 
@@ -138,7 +138,8 @@ const SideBar = () => {
             })}
             <button
               onClick={togglePostModal}
-              className="p-2 mr-3 rounded-md hover:bg-gray-200 w-full flex items-center space-x-4 mt-auto mb-4"
+              disabled={pathname !== "/" && userProfile && userProfile.uid !== loggedUser.uid}
+              className={`p-2 mr-3 rounded-md hover:bg-gray-200 w-full flex items-center space-x-4 mt-auto mb-4`}
             >
               <FiPlusSquare size="25px" />
               <div>Create</div>

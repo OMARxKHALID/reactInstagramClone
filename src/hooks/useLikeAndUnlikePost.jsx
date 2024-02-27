@@ -10,62 +10,42 @@ const useLikeAndUnlikePost = () => {
     const authUser = useSelector(selectUser);
     const dispatch = useDispatch();
 
-    const handleLikePost = async (postId, user) => {
-        if (isLiking) return;
-        if (!authUser) return dispatch(setError("Please login to like"));
-        setIsLiking(true);
+    const handleLikeOrUnlikePost = async (postId, user, action) => {
+        setIsLiking(true); 
         try {
+            if (isLiking || !authUser) return;
+
             const postRef = doc(firestore, 'posts', postId);
             const postDoc = await getDoc(postRef);
             const post = postDoc.data();
-            const newLike = {
-                likedBy: user.uid,
-                createdAt: Date.now()
-            };
-            const likeIds = post.likes.map(like => like.likedBy); 
 
-            if (likeIds.includes(user.uid)) {
-                await updateDoc(postRef, {
-                    likes: arrayRemove(newLike) 
-                });
-            } else {
-                await updateDoc(postRef, {
-                    likes: arrayUnion(newLike)
-                });
+            const newLike = { likedBy: user.uid, createdAt: Date.now() };
+
+            if (action === 'like') {
+                await updateDoc(postRef, { likes: arrayUnion(newLike) });
+                dispatch(addLike({ postId, like: newLike }));
+            } else if (action === 'unlike') {
+                const likeIndex = post.likes.findIndex(like => like.likedBy === user.uid);
+                if (likeIndex !== -1) {
+                    const unLike = post.likes[likeIndex];
+                    await updateDoc(postRef, { likes: arrayRemove(unLike) });
+                    dispatch(removeLike({ postId, like: unLike }));
+                }
             }
-            dispatch(addLike({ postId, like: newLike })); 
         } catch (error) {
             dispatch(setError(error.message));
         } finally {
             setIsLiking(false);
         }
+    };
+
+    const handleLikePost = async (postId, user) => {
+        await handleLikeOrUnlikePost(postId, user, 'like'); 
     };
 
     const handleUnlikePost = async (postId, user) => {
-        if (isLiking) return;
-        if (!authUser) return dispatch(setError("Please login to unLike"));
-        setIsLiking(true);
-        try {
-            const postRef = doc(firestore, 'posts', postId);
-            const postDoc = await getDoc(postRef);
-            const post = postDoc.data();
-            const likeIndex = post.likes.findIndex(like => like.likedBy === user.uid);
-
-            if (likeIndex !== -1) {
-                const unLike = post.likes[likeIndex];
-                await updateDoc(postRef, {
-                    likes: arrayRemove(unLike)
-                });
-                dispatch(removeLike({ postId, like: unLike }));
-            }
-            
-        } catch (error) {
-            dispatch(setError(error.message));
-        } finally {
-            setIsLiking(false);
-        }
+        await handleLikeOrUnlikePost(postId, user, 'unlike'); 
     };
-
 
     return { isLiking, handleLikePost, handleUnlikePost };
 };

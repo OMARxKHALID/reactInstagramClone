@@ -8,16 +8,15 @@ import MiniProfile from "../utils/MiniProfile";
 import useCommentPost from "../hooks/useCommentPost";
 import useGetUserProfileByUserId from "../hooks/useGetUserProfileByUserId";
 import ShowComments from "../utils/ShowComments";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { selectUser } from "../redux/authSlice";
-import { addComment } from "../redux/postsSlice";
 import useLikeAndUnlikePost from "../hooks/useLikeAndUnlikePost";
 
 const ViewPostModal = ({ post, onClose }) => {
     const { id, createdAt, caption, imageUrl } = post;
 
     const { isDeleting, handleDeletePost } = useCreatePost();
-    const { isCommenting, isDeletingComment, handleCommentPost, HandleDeleteComment } = useCommentPost();
+    const { isCommenting, isDeletingComment, handleCommentPost, handleDeleteComment } = useCommentPost();
     const { isLiking, handleLikePost, handleUnlikePost } = useLikeAndUnlikePost();
     const { isLoading, userProfile } = useGetUserProfileByUserId(post.createdBy);
 
@@ -25,10 +24,9 @@ const ViewPostModal = ({ post, onClose }) => {
     const [bookmarked, setBookmarked] = useState(false);
 
     const authUser = useSelector(selectUser);
-    const dispatch = useDispatch();
 
-    const comments = useSelector((state) => state.posts.posts.find((p) => p.id === id)?.comments) || [];
-    const likes = useSelector((state) => state.posts.posts.find((p) => p.id === id)?.likes) || [];
+    const comments = useSelector((state) => state.posts.posts.find((p) => p.id === id)?.comments) || []; // instead deconstruct from post array
+    const likes = useSelector((state) => state.posts.posts.find((p) => p.id === id)?.likes) || []; // instead deconstruct from post array
     const isLikedByUser = likes.some(like => like.likedBy === authUser?.uid);
 
     const handleLikeToggle = () => {
@@ -58,7 +56,6 @@ const ViewPostModal = ({ post, onClose }) => {
     }
     handleCommentPost(id, newComment);
     setNewComment("");
-    // addComment({ postId: id, comment: { comment: newComment, createdBy: authUser.uid, createdAt: new Date(), postId: id } });
 };
 
     return (
@@ -103,7 +100,7 @@ const ViewPostModal = ({ post, onClose }) => {
                                 comments={comments}
                                 userProfile={userProfile}
                                 authUser={authUser}
-                                handleDeleteComment={HandleDeleteComment}
+                                handleDeleteComment={handleDeleteComment}
                                 isDeletingComment={isDeletingComment}
                             />
                         </div>

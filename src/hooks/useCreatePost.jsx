@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import userProfileSlice, {
+import {
   addPost,
   setError,
   selectError,
   deleteUserPost,
-  selectUserProfile
 } from "../redux/userProfileSlice";
 import { storage, firestore } from "../firebase/Firebase";
 import { ref, uploadString, getDownloadURL, deleteObject } from "firebase/storage";
@@ -19,7 +18,6 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { selectUser } from "../redux/authSlice";
-import { useLocation } from "react-router-dom";
 import { deletePost } from "../redux/postsSlice";
 
 const useCreatePost = (onClose) => {
@@ -28,10 +26,8 @@ const useCreatePost = (onClose) => {
   const [caption, setCaption] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const authUser = useSelector(selectUser);
-  const userProfile = useSelector(selectUserProfile);
   const error = useSelector(selectError);
   const dispatch = useDispatch();
-  const { pathname } = useLocation();
 
   const handleCreatePost = async () => {
     setIsLoading(true);
@@ -69,7 +65,7 @@ const useCreatePost = (onClose) => {
 
       newPost.imageUrl = downloadUrl;
 
-      if (!pathname === "/" && userProfile.uid === authUser.uid) dispatch(addPost({ ...newPost, id: postDocRef.id }));
+      dispatch(addPost({ ...newPost, id: postDocRef.id }));
       onClose();
       console.log("Post created");
     } catch (error) {

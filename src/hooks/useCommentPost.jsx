@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { selectUser, setError } from '../redux/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { arrayUnion, arrayRemove, doc, updateDoc, getDoc } from 'firebase/firestore';
+import { arrayUnion, arrayRemove, getDoc, doc, updateDoc } from 'firebase/firestore';
 import { firestore } from '../firebase/Firebase';
-import { addComment, removeComment, setPosts } from '../redux/postsSlice';
+import { addComment, removeComment, setFeedPosts } from '../redux/postsSlice'; 
 
 const useCommentPost = () => {
     const [isCommenting, setIsCommenting] = useState(false);
@@ -15,58 +15,74 @@ const useCommentPost = () => {
         if (isCommenting) return;
         if (!authUser) return dispatch(setError("Please login to comment"));
         setIsCommenting(true);
+
         try {
             const newComment = {
+                id: commentId(),
                 comment: comment,
                 createdBy: authUser.uid,
-                createdAt: new Date(),
+                createdAt: Date.now(),
                 postId: postId
             };
-            await updateDoc(doc(firestore, "posts", postId), {
-                comments: arrayUnion(newComment)
-            });
+
+            const postRef = doc(firestore, "posts", postId);
+            await updatePostComments(postRef, newComment);
             dispatch(addComment({ postId, comment: newComment }));
 
+            updatedFeedPost(postId);
+
         } catch (error) {
-            dispatch(setError(error.message));
+            dispatch(setError("Error adding comment: " + error.message));
         } finally {
             setIsCommenting(false);
         }
     };
 
-   const HandleDeleteComment = async (postId, comment) => {
-    if (isDeletingComment) return;
-    if (!authUser) return dispatch(setError("Please login to delete comment"));
-    setIsDeletingComment(true);
-    try {
-        const postRef = doc(firestore, "posts", postId);
-        const postDoc = await getDoc(postRef);
-        const post = postDoc.data();
-        const commentIndex = post.comments.findIndex(c => c.createdBy === comment.createdBy);
+    const handleDeleteComment = async (postId, comment) => {
+        if (isDeletingComment) return;
+        if (!authUser) return dispatch(setError("Please login to delete comment"));
+        setIsDeletingComment(true);
 
-        console.log('Comments before deletion:', post.comments); 
+        try {
+            const postRef = doc(firestore, "posts", postId);
+            await deleteComment(postRef, comment);
+            dispatch(removeComment({ postId, comment }));
 
-        if (commentIndex !== -1) {
-            const removedComment = post.comments[commentIndex];
-            await updateDoc(postRef, {
-                comments: arrayRemove(removedComment)
-            });
-            dispatch(removeComment({ postId, comment: removedComment }));
+            updatedFeedPost(postId);
 
-            console.log('Comment removed:', removedComment); 
+        } catch (error) {
+            dispatch(setError("Error deleting comment: " + error.message));
+        } finally {
+            setIsDeletingComment(false);
         }
+    };
 
-        const updatedPostDoc = await getDoc(postRef);
-        const updatedPost = updatedPostDoc.data();
-        // dispatch(setPosts([updatedPost]));
-        console.log('Comments after deletion:', updatedPost.comments); 
-    } catch (error) {
-        dispatch(setError(error.message));
-    } finally {
-        setIsDeletingComment(false);
-    }
-};
-    return { isCommenting, isDeletingComment, handleCommentPost, HandleDeleteComment };
+    const commentId = () => {
+        return Math.floor(Math.random() * 100000000000000);
+    };
+
+    const updatePostComments = async (postRef, newComment) => {
+        await updateDoc(postRef, {
+            comments: arrayUnion(newComment)
+        });
+    };
+
+    const deleteComment = async (postRef, comment) => {
+        await updateDoc(postRef, {
+            comments: arrayRemove(comment)
+        });
+    };
+
+    const updatedFeedPost = async (postId) => {
+        const postDoc = doc(firestore, 'posts', postId);
+        const postSnapshot = await getDoc(postDoc);
+        if (postSnapshot.exists()) {
+            const updatedPost = { id: postSnapshot.id, ...postSnapshot.data() };
+            dispatch(setFeedPosts([updatedPost])); 
+        }
+    };
+
+    return { isCommenting, isDeletingComment, handleCommentPost, handleDeleteComment };
 };
 
 export default useCommentPost;
