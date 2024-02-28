@@ -2,7 +2,8 @@
 
 ## Description
 
-The Instagram Clone UI project seeks to replicate the key features of the original Instagram application, allowing users to explore, post, and interact with content in a familiar environment. It includes components such as the feed, stories, user profiles, and explore page, each designed to closely resemble their counterparts in the official Instagram app.
+The Instagram Clone UI project seeks to replicate the key features of the original Instagram application, allowing users to explore, post, and interact with content in a familiar environment. It includes components such as the feed, stories, user profiles, and explore page, each designed to closely resemble their counterparts in the official Instagram app. This project is built using React.js for dynamic frontend development, Tailwind CSS for responsive styling, and Firebase as the backend.
+
 
 ## Features
 
@@ -12,6 +13,8 @@ The Instagram Clone UI project seeks to replicate the key features of the origin
 - **Explore Page**: Discover new content and users based on interests and recommendations.
 - **Upload Posts**: Allow users to upload photos and videos to share with followers.
 - **Interactions**: Like, comment, and share posts with other users to engage with content.
+- **Backend**: add firebase email password auth, sotrage, firebase firestore.
+
 
 ## Installation and Usage
 
