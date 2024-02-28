@@ -9,6 +9,7 @@ const MiniProfile = ({ userProfile }) => {
             <div className="flex items-center">
                 <div className="rounded-full overflow-hidden mr-2">
                     <img
+                        loading="lazy"
                         src={userProfile.profilePicUrl} 
                         alt={userProfile.username}
                         className="h-9 w-9 rounded-full object-cover border-2 border-pink-500"

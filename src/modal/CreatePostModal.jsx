@@ -100,6 +100,7 @@ const CreatePostModal = ({ onClose }) => {
                     </svg>
                   </button>
                   <img
+                    loading="lazy"
                     src={selectedFile}
                     alt="Selected"
                     className="w-full h-full object-cover rounded-md"

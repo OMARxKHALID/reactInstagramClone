@@ -37,6 +37,7 @@ function LoginPage() {
     <div className="h-screen bg-gray-50 flex flex-col justify-center items-center">
       <div className="bg-white border border-gray-300 w-80 py-8 flex items-center flex-col mb-3">
         <img
+          loading="lazy"
           src={instagramLogo}
           alt="Instagram Logo"
           className="bg-no-repeat"

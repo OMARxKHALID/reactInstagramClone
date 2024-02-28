@@ -74,6 +74,7 @@ const SearchUserModal = ({ onClose }) => {
               <>
                 <div className="rounded-full overflow-hidden mr-2">
                   <img
+                    loading="lazy"
                     src={
                       userProfile.profilePicUrl
                         ? userProfile.profilePicUrl

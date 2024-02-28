@@ -26,6 +26,7 @@ const UserPosts = () => {
               {posts.map((post) => (
                 <div key={post.id} className="bg-zinc-50 rounded-lg">
                   <img
+                    loading="lazy"
                     src={post.imageUrl}
                     onClick={() => openModal(post)}
                     alt={`Image ${post.id}`}

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { selectUser, setError } from '../redux/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { arrayUnion, arrayRemove, getDoc, doc, updateDoc } from 'firebase/firestore';
+import { arrayUnion, arrayRemove, doc, updateDoc } from 'firebase/firestore';
 import { firestore } from '../firebase/Firebase';
 import { addComment, removeComment, setFeedPosts } from '../redux/postsSlice'; 
 
@@ -29,8 +29,6 @@ const useCommentPost = () => {
             await updatePostComments(postRef, newComment);
             dispatch(addComment({ postId, comment: newComment }));
 
-            updatedFeedPost(postId);
-
         } catch (error) {
             dispatch(setError("Error adding comment: " + error.message));
         } finally {
@@ -47,8 +45,6 @@ const useCommentPost = () => {
             const postRef = doc(firestore, "posts", postId);
             await deleteComment(postRef, comment);
             dispatch(removeComment({ postId, comment }));
-
-            updatedFeedPost(postId);
 
         } catch (error) {
             dispatch(setError("Error deleting comment: " + error.message));
@@ -71,15 +67,6 @@ const useCommentPost = () => {
         await updateDoc(postRef, {
             comments: arrayRemove(comment)
         });
-    };
-
-    const updatedFeedPost = async (postId) => {
-        const postDoc = doc(firestore, 'posts', postId);
-        const postSnapshot = await getDoc(postDoc);
-        if (postSnapshot.exists()) {
-            const updatedPost = { id: postSnapshot.id, ...postSnapshot.data() };
-            dispatch(setFeedPosts([updatedPost])); 
-        }
     };
 
     return { isCommenting, isDeletingComment, handleCommentPost, handleDeleteComment };

@@ -64,6 +64,7 @@ const ViewPostModal = ({ post, onClose }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2">
                     <div className="relative h-[370px] md:h-[440px] lg:h-[460px] xl:h-[500px] border-r-2 shadow-md">
                         <img
+                            loading="lazy"
                             src={imageUrl}
                             alt="Post"
                             className="absolute inset-0 w-full h-full object-contain bg-zinc-50"

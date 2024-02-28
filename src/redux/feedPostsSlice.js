@@ -1,22 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  posts: [],
-  comments: [],
-  likes: [],
+  feedPosts: [],
   isLoading: false,
   error: null,
 };
 
-const postsSlice = createSlice({
-  name: "posts",
+const feedPostsSlice = createSlice({
+  name: "feedPosts",
   initialState,
   reducers: {
-    setPosts(state, action) {
-      state.posts = action.payload;
-    },
     setFeedPosts(state, action) {
-      state.posts = action.payload;
+      state.feedPosts = action.payload;
     },
     setIsLoading(state, action) {
       state.isLoading = action.payload;
@@ -24,23 +19,25 @@ const postsSlice = createSlice({
     setError(state, action) {
       state.error = action.payload;
     },
-    createPost(state, action) {
-      state.posts = [action.payload, ...state.posts];
+    addFeedPost(state, action) {
+      state.feedPosts = [action.payload, ...state.feedPosts];
     },
-    deletePost(state, action) {
-      state.posts = state.posts.filter((post) => post.id !== action.payload);
+    deleteFeedPost(state, action) {
+      state.feedPosts = state.feedPosts.filter(
+        (post) => post.id !== action.payload
+      );
     },
-    addComment(state, action) {
+    addFeedComment(state, action) {
       const { postId, comment } = action.payload;
-      state.posts = state.posts.map((post) =>
+      state.feedPosts = state.feedPosts.map((post) =>
         post.id === postId
           ? { ...post, comments: [...post.comments, comment] }
           : post
       );
     },
-    removeComment(state, action) {
+    removeFeedComment(state, action) {
       const { postId, comment } = action.payload;
-      state.posts = state.posts.map((post) =>
+      state.feedPosts = state.feedPosts.map((post) =>
         post.id === postId
           ? {
               ...post,
@@ -49,15 +46,15 @@ const postsSlice = createSlice({
           : post
       );
     },
-    addLike(state, action) {
+    addFeedLike(state, action) {
       const { postId, like } = action.payload;
-      state.posts = state.posts.map((post) =>
+      state.feedPosts = state.feedPosts.map((post) =>
         post.id === postId ? { ...post, likes: [...post.likes, like] } : post
       );
     },
-    removeLike(state, action) {
+    removeFeedLike(state, action) {
       const { postId, like } = action.payload;
-      state.posts = state.posts.map((post) =>
+      state.feedPosts = state.feedPosts.map((post) =>
         post.id === postId
           ? {
               ...post,
@@ -70,15 +67,13 @@ const postsSlice = createSlice({
 });
 
 export const {
-  setPosts,
-  addComment,
+  setFeedPosts,
+  addFeedPost,
+  addFeedComment,
+  removeFeedComment,
+  addFeedLike,
+  removeFeedLike,
   setIsLoading,
-  deletePost,
   setError,
-  createPost,
-  addLike,
-  removeLike,
-  removeComment,
-  setFeedPosts
-} = postsSlice.actions;
-export default postsSlice.reducer;
+} = feedPostsSlice.actions;
+export default feedPostsSlice.reducer;

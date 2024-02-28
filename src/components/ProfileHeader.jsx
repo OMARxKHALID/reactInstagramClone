@@ -9,13 +9,11 @@ import {
   clearUserProfile,
   setEditing,
 } from "../redux/userProfileSlice";
-import { selectUser, setUser } from "../redux/authSlice";
-import { storage, firestore } from "../firebase/Firebase";
+import { selectUser } from "../redux/authSlice";
 import LoadingSpinner from "../utils/loadingSpinner";
 import useFollowAndUnfollowUser from "../hooks/useFollowAndUnfollowUser";
 import EditProfileModal from "../modal/EditProfileModal";
-import { getDownloadURL, ref, uploadString } from "firebase/storage";
-import { doc, updateDoc } from "firebase/firestore";
+import useSaveProfile from "../hooks/useSaveProfile";
 
 const ProfileHeader = () => {
   const { username } = useParams();
@@ -29,45 +27,16 @@ const ProfileHeader = () => {
   const isUpdating = useSelector((state) => state.auth.isUpdating);
   const [selectedImage, setSelectedImage] = useState(null);
 
+  const { handleSaveProfile, isLoading } = useSaveProfile(selectedImage, userProfile, dispatch, isEditing);
+
   const fetchProfile = useCallback(() => {
+    setUserProfile(null);
     dispatch(fetchUserProfileByUsername(username));
   }, [dispatch, username]);
 
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
-
-  const handleSaveProfile = useCallback(
-    async (updatedProfile) => {
-      try {
-        let imageUrl = userProfile.profilePicUrl;
-
-        if (selectedImage) {
-          const storageRef = ref(storage, `profilePics/${userProfile.uid}`);
-          await uploadString(storageRef, selectedImage, "data_url");
-          imageUrl = await getDownloadURL(
-            ref(storage, `profilePics/${userProfile.uid}`)
-          );
-        }
-
-        const updatedUserProfile = {
-          ...updatedProfile,
-          profilePicUrl: imageUrl,
-        };
-
-        const userDocRef = doc(firestore, "users", userProfile.uid);
-        await updateDoc(userDocRef, updatedUserProfile);
-
-        dispatch(setUserProfile(updatedUserProfile));
-        dispatch(setUser(updatedUserProfile));
-        dispatch(setEditing(!isEditing));
-      } catch (error) {
-        console.error("Error while updating profile:", error);
-        dispatch(setError(error.message));
-      }
-    },
-    [dispatch, isEditing, selectedImage, userProfile]
-  );
 
   const toggleEditModal = useCallback(() => {
     dispatch(setEditing(!isEditing));
@@ -122,6 +91,7 @@ const ProfileHeader = () => {
             <div className="flex mx-auto sm:mr-10 sm:m-0">
               <div className="items-center justify-center w-20 h-20 m-auto mr-4 sm:w-40 sm:h-40">
                 <img
+                  loading="lazy"
                   alt="profil"
                   src={profilePicUrl || "https://via.placeholder.com/150"}
                   className="object-cover w-20 h-20 mx-auto rounded-full sm:w-40 sm:h-40"
@@ -146,11 +116,10 @@ const ProfileHeader = () => {
                     </>
                   ) : (
                     <button
-                      className={`flex items-center px-4 font-semibold ${
-                        isFollowing
+                      className={`flex items-center px-4 font-semibold ${isFollowing
                           ? "bg-gray-200 hover:bg-gray-300 tex-black"
                           : "bg-blue-500 text-white hover:bg-blue-600"
-                      } rounded-md`}
+                        } rounded-md`}
                       style={{ padding: "0 16px", fontSize: "13px" }}
                       disabled={isUpdating}
                       onClick={followOrUnfollowUser}

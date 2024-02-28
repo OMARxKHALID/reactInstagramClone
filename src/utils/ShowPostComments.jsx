@@ -3,10 +3,16 @@ import useGetUserProfileByUserId from "../hooks/useGetUserProfileByUserId";
 import { MdDelete } from "react-icons/md";
 import { durationSinceCreated } from "./Dsc";
 
-const ShowComments = ({ comments, authUser, handleDeleteComment, isDeletingComment }) => {
+const ShowPostComments = ({ comments, authUser, handleDeleteComment, isDeletingComment }) => {
+    const [showAllComments, setShowAllComments] = useState(false);
+
+    const toggleShowAllComments = () => {
+        setShowAllComments(!showAllComments);
+    };
+
     return (
-        <div className="p-1 h-20 md:h-64 xl:h-64 lg:h-64 no-scrollbar overflow-y-auto">
-            {comments.map((comment, index) => (
+        <div className="p-1 no-scrollbar overflow-y-auto">
+            {comments.slice(0, showAllComments ? comments.length : 3).map((comment, index) => (
                 <div key={index} className="flex items-start mb-4">
                     <CommentItem
                         comment={comment}
@@ -16,10 +22,25 @@ const ShowComments = ({ comments, authUser, handleDeleteComment, isDeletingComme
                     />
                 </div>
             ))}
+            {!showAllComments && comments.length > 3 && (
+                <button
+                    onClick={toggleShowAllComments}
+                    className="text-gray-400 m-1"
+                >
+                    View {comments.length - 3} more comments
+                </button>
+            )}
+            {showAllComments && (
+                <button
+                    onClick={toggleShowAllComments}
+                    className="text-gray-400  m-1"
+                >
+                    Hide comments
+                </button>
+            )}
         </div>
     );
 };
-
 const CommentItem = ({ comment, authUser, handleDeleteComment, isDeletingComment }) => {
     const { userProfile, isLoading: userIsLoading } = useGetUserProfileByUserId(comment.createdBy);
     const [isLoading, setIsLoading] = useState(false);
@@ -74,11 +95,10 @@ const CommentItem = ({ comment, authUser, handleDeleteComment, isDeletingComment
                 </div>
                 <div className="flex flex-row -my-1">
                     <p className="text-sm text-gray-600 comment-text">{comment.comment}</p>
-
                 </div>
             </div>
         </>
     );
 };
 
-export default ShowComments;
+export default ShowPostComments;

@@ -4,26 +4,26 @@ import { FaRegBookmark, FaBookmark } from "react-icons/fa";
 import { durationSinceCreated } from "../utils/Dsc";
 import { Link } from "react-router-dom";
 import useGetUserProfileByUserId from "../hooks/useGetUserProfileByUserId";
-import ShowComments from "../utils/ShowComments";
+import ShowPostComments from "../utils/ShowPostComments";
 import useCommentPost from "../hooks/useCommentPost";
 import { useSelector } from "react-redux";
 import { selectUser } from "../redux/authSlice";
 import useLikeAndUnlikePost from "../hooks/useLikeAndUnlikePost";
 
 const Post = ({ post }) => {
-    const { createdAt, caption, id, imageUrl} = post;
-   
+    const { createdAt, caption, id, imageUrl } = post;
+
     const { userProfile, isLoading } = useGetUserProfileByUserId(post.createdBy);
     const { isCommenting, isDeletingComment, handleCommentPost, handleDeleteComment } = useCommentPost();
     const { isLiking, handleLikePost, handleUnlikePost } = useLikeAndUnlikePost();
 
-    const [ bookmarked, setBookmarked ] = useState(false);
-    const [ newComment, setNewComment ] = useState("");
+    const [bookmarked, setBookmarked] = useState(false);
+    const [newComment, setNewComment] = useState("");
 
     const authUser = useSelector(selectUser);
-    
-    const feedPosts = useSelector((state) => state.posts.feedPosts);
-    const currentPost = feedPosts.find((p) => p.id === id) || { comments: [], likes: [] };
+
+    const posts = useSelector((state) => state.posts.posts);
+    const currentPost = posts.find((p) => p.id === id) || { comments: [], likes: [] };
     const { comments, likes } = currentPost;
 
     const isLikedByUser = likes.some(like => like.likedBy === authUser?.uid);
@@ -42,7 +42,7 @@ const Post = ({ post }) => {
 
     const handleCommentAdd = () => {
         if (!authUser) {
-            console.log("Only authenticated users can add comments."); 
+            console.log("Only authenticated users can add comments.");
             return;
         }
         if (!newComment.trim()) {
@@ -65,13 +65,14 @@ const Post = ({ post }) => {
                     {isLoading ? (
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
                     ) : (
-                            <div className="rounded-full overflow-hidden mr-2">
-                                <img
-                                    src={userProfile?.profilePicUrl}
-                                    alt={userProfile?.username}
-                                    className="h-9 w-9 rounded-full object-cover border-2 border-pink-500"
-                                />
-                            </div>                    )}
+                        <div className="rounded-full overflow-hidden mr-2">
+                            <img
+                                loading="lazy"
+                                src={userProfile?.profilePicUrl}
+                                alt={userProfile?.username}
+                                className="h-9 w-9 rounded-full object-cover border-2 border-pink-500"
+                            />
+                        </div>)}
                     <div>
                         <Link
                             to={`/user/${userProfile?.username}`}
@@ -88,6 +89,7 @@ const Post = ({ post }) => {
                 <div className={`mb-2 sm:px-0 md:px-4 lg:px-4 xl:px-4`}>
                     <div className="flex h-[370px] md:h-[440px] lg:h-[460px] xl:h-[500px]" style={{ maxWidth: '530px' }}>
                         <img
+                            loading="lazy"
                             src={imageUrl}
                             alt="Post"
                             className="w-full h-full object-cover"
@@ -133,7 +135,7 @@ const Post = ({ post }) => {
                 </div>
 
                 <div className="text-sm my-1 px-3.5">
-                    <ShowComments
+                    <ShowPostComments
                         comments={comments}
                         userProfile={userProfile}
                         authUser={authUser}
@@ -150,8 +152,12 @@ const Post = ({ post }) => {
                         placeholder="Add a comment..."
                         className="border-gray-400 rounded-md px-2 py-1 flex-grow focus:outline-none"
                     />
-                    <button onClick={handleCommentAdd} className="ml-2 px-2 font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">
-                        Post
+                    <button onClick={handleCommentAdd} disabled={isCommenting} className="ml-2 px-2 font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">
+                        {isCommenting ? (
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+                        ) : (
+                            "Post"
+                        )}
                     </button>
                 </div>
             </div>

@@ -114,6 +114,7 @@ const SideBar = () => {
     >
       <div className="flex flex-col mt-6 mr-4 h-full items-start">
         <img
+          loading="lazy"
           src={instagramLogo}
           alt="Instagram Logo"
           className="mr-1 mt-4 h-[35px]"

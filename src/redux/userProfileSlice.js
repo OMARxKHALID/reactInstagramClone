@@ -53,6 +53,12 @@ export const userProfileSlice = createSlice({
         };
       }
     },
+    setUserProfileStories: (state, action) => {
+      state.userProfile = {
+       ...state.userProfile,
+        stories: action.payload,
+      };
+    }
   },
 });
 
@@ -64,7 +70,8 @@ export const {
   clearUserProfile,
   setEditing,
   addPost,
-  deleteUserPost
+  deleteUserPost,
+  setUserProfileStories,
 } = userProfileSlice.actions;
 
 export const selectError = (state) => state.userProfile.error;

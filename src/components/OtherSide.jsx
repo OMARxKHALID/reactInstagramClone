@@ -12,15 +12,15 @@ const SuggestedUser = ({ user }) => {
   return (
     <div className="mt-4 flex w-full justify-between items-center">
       <Link to={`/user/${user.username}`}>
-          <div className="flex flex-row items-center pl-2">
-            <div className="h-10 w-10 rounded-full object-cover border-2 border-pink-500 overflow-hidden mr-2">
-              <img alt={user.username} src={user.profilePicUrl} />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold">{user.username}</span>
-              <span className="text-xs text-gray-400">suggested user</span>
-            </div>
+        <div className="flex flex-row items-center pl-2">
+          <div className="h-10 w-10 rounded-full object-cover border-2 border-pink-500 overflow-hidden mr-2">
+            <img alt={user.username} src={user.profilePicUrl} />
           </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold">{user.username}</span>
+            <span className="text-xs text-gray-400">suggested user</span>
+          </div>
+        </div>
       </Link>
       <button
         onClick={followOrUnfollowUser}
@@ -60,6 +60,7 @@ const OtherSide = () => {
       <div className="flex items-center mb-4">
         <div className="rounded-full overflow-hidden mr-2">
           <img
+            loading="lazy"
             src={
               currentUser.profilePicUrl ||
               "https://i.pinimg.com/736x/42/d4/0a/42d40a5d647a714bc53c018c84d26274.jpg"

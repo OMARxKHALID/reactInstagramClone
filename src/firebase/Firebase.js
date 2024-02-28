@@ -3,18 +3,16 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from 'firebase/storage';
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAhADzfwrick_DOmmESMBajh75O8XW48IY",
-  authDomain: "instaclo-2e4f6.firebaseapp.com",
-  projectId: "instaclo-2e4f6",
-  storageBucket: "instaclo-2e4f6.appspot.com",
-  messagingSenderId: "345933306094",
-  appId: "1:345933306094:web:c4296355204389bb70fbff",
-  measurementId: "G-P5LW7H4GQ1",
-  storage: "gs://instaclo-2e4f6.appspot.com"
+	apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+	authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+	projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+	storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+	messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+	appId: import.meta.env.VITE_FIREBASE_APP_ID,
+	measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
-// Initialize Firebase
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const storage = getStorage(app);

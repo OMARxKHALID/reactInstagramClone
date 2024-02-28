@@ -76,6 +76,7 @@ const EditProfileModal = ({
           <div className="mb-4 flex items-center justify-center">
             <div className="relative w-20 h-20 mr-auto">
               <img
+                loading="lazy"
                 className="w-full h-full object-cover rounded-full border-2 border-pink-300"
                 src={
                   updatedProfile.profilePicUrl ||
