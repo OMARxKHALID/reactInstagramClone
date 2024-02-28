@@ -3,15 +3,11 @@ import { combineReducers } from 'redux';
 import authReducer from "./authSlice";
 import postsReducer from "./postsSlice";
 import userProfileReducer from "./userProfileSlice"
-import feedPostsReducer from "./feedPostsSlice"
-
 
 const rootReducer = combineReducers({
   auth: authReducer,
   posts: postsReducer,
   userProfile: userProfileReducer,
-  feedPosts: feedPostsReducer
-
 });
 
 const preloadedState = localStorage.getItem('reduxState')
@@ -29,7 +25,7 @@ export const store = configureStore({
 
 store.subscribe(() => {
   const state = store.getState();
-  const { auth, posts , userProfile, feedPosts } = state;
+  const { auth, posts , userProfile } = state;
   const stateToSave = {
     auth: {
       user: auth.user,
@@ -39,7 +35,6 @@ store.subscribe(() => {
     },
     userProfile,
     posts,
-    feedPosts,
   };
   localStorage.setItem('reduxState', JSON.stringify(stateToSave));
 });
